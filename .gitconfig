@@ -1,0 +1,34 @@
+[user]
+    name = Joakim Engeset
+    email = joakim.engeset@gmail.com
+[diff]
+    tool = vimdiff
+[core]
+    autocrlf = input
+    editor = nvim
+[difftool]
+    prompt = false
+[merge]
+    tool = vimdiff
+    conflictstyle = diff3
+[mergetool]
+    prompt = false
+[alias]
+    a = add
+    b = branch
+    c = commit
+    cm = commit -m
+    co = checkout
+    cv = commit --verbose
+    d = difftool
+    ds = difftool --staged
+    df = diff
+    ll = log --name-status --graph
+    ls = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    pl = pull
+    ps = push
+    s = status
+    ss = status --short
+    untracked = ls-files --others --exclude-standard
+[web]
+	browser = open
