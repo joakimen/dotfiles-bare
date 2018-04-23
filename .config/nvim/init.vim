@@ -169,6 +169,13 @@ cnoreabbrev ci] %ci]
 cnoreabbrev ci{ %ci{
 cnoreabbrev ci} %ci}
 
+" navigate out of terminal-mode
+tnoremap <C-h> <C-\><C-N><C-w>h
+tnoremap <C-j> <C-\><C-N><C-w>j
+tnoremap <C-k> <C-\><C-N><C-w>k
+tnoremap <C-l> <C-\><C-N><C-w>l
+tnoremap jk <C-\><C-n>
+
 " }}}
 " plugin settings --------------------------------------------------------- {{{
 
@@ -410,8 +417,8 @@ augroup end
 
 augroup ft_sh
     au!
-    au FileType sh nnoremap <F5> :w !bash<CR>
-    au FileType sh nnoremap <Leader>r :w !bash<CR>
+    au FileType sh nnoremap <F5> :sp term:///usr/bin/env bash %<CR>
+    au FileType sh nnoremap <Leader>r :sp term:///usr/bin/env bash %<CR>
     au FileType sh setlocal sw=2 sts=2
 augroup end
 
