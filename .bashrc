@@ -71,6 +71,7 @@ alias gitv='git log --graph --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
 # system
 alias vi=$EDITOR
 alias vim=$EDITOR
+alias e=$EDITOR
 alias pip=pip3
 alias python=python3
 alias which='type -p'
