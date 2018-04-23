@@ -86,6 +86,7 @@ set autoread
 " colors ------------------------------------------------------------------ {{{
 
 set background=dark
+let g:gruvbox_contrast_dark='soft'
 colorscheme gruvbox
 
 highlight ExtraWhitespace ctermbg=red guibg=red
