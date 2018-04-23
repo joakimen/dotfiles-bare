@@ -371,7 +371,7 @@ augroup ft_notes
     au BufRead TODO.md setlocal foldlevel=99
 
     " insert new header with current date
-    au FileType notes nnoremap _ :.!date "+\%d \%b \%Y"<CR>I# <Esc>o
+    au FileType notes nnoremap _ 2o<Esc>:.!date "+\%d \%b \%Y"<CR>I# <Esc>0
 
     " mark item as done with timestamp
     au FileType notes nnoremap - mp0rx:r !date "+[\%H:\%M]"<CR>kJ`p
