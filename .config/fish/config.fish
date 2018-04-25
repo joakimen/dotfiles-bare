@@ -18,6 +18,7 @@ set -xg EDITOR "nvim"
 set -xg DIFF $EDITOR
 set -xg VISUAL $EDITOR
 set -xg SVN_EDITOR $EDITOR
+set -xg RIPGREP_CONFIG_PATH $HOME/.rgrc
 
 # }}}
 # aliases ----------------------------------------------------------------- {{{
