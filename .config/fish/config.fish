@@ -27,6 +27,7 @@ set -xg RIPGREP_CONFIG_PATH $HOME/.rgrc
 alias e $EDITOR
 alias fc "$EDITOR ~/.config/fish/config.fish"
 alias vc "$EDITOR ~/.config/nvim/init.vim"
+alias kc "$EDITOR ~/.config/kitty/kitty.conf"
 alias tc "$EDITOR ~/.tmux.conf"
 alias bc "$EDITOR ~/.bashrc"
 alias zc "$EDITOR ~/.zshrc"
@@ -37,7 +38,7 @@ alias srcf "source ~/.config/fish/config.fish"
 alias vim nvim
 alias top htop
 alias cl clear
-alias pid "ps ax | ag -i"
+alias pid "ps ax | rg "
 alias l 'ls -hlAFG'
 alias ls 'ls -AFG'
 alias .. 'cd ../'
@@ -102,10 +103,6 @@ end
 function fe --description 'fuzzy-edit'
     set file (fzf-tmux --query="$1" --select-1 --exit-0)
     [ -n "$file" ]; and eval $EDITOR \"$file\"
-end
-
-function fd --description 'fuzzy-cd'
-    set DIR (find . -type d -not -path '*/\.*' | fzf-tmux); and cd $DIR
 end
 
 function zcat --description 'fuzzy-cat into clipboard'
@@ -176,12 +173,6 @@ function fish_prompt
     set_color normal
 
     z --add "$PWD"
-end
-
-# automatically create/attach to tmux-session
-if [ "$TERM" != "screen-256color" ]
-    tmux attach-session -t "$USER"; or tmux new-session -s "$USER"
-    exit
 end
 
 # }}}
