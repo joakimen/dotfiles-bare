@@ -25,6 +25,7 @@ set -xg RIPGREP_CONFIG_PATH $HOME/.rgrc
 
 # quick edit
 alias e $EDITOR
+alias t "$EDITOR ~/Documents/Notes/TODO.md"
 alias fc "$EDITOR ~/.config/fish/config.fish"
 alias vc "$EDITOR ~/.config/nvim/init.vim"
 alias kc "$EDITOR ~/.config/kitty/kitty.conf"
@@ -101,18 +102,23 @@ function n --description 'test for network connectivity'
 end
 
 function fe --description 'fuzzy-edit'
-    set file (fzf-tmux --query="$1" --select-1 --exit-0)
+    set file (fzf-tmux --query="$1" --select-1 --exit-0 --preview='cat {}')
     [ -n "$file" ]; and eval $EDITOR \"$file\"
 end
 
+function ztig --description 'fuzzy-tig'
+    set file (fzf-tmux --query="$1" --select-1 --exit-0 --preview='cat {}')
+    [ -n "$file" ]; and eval tig \"$file\"
+end
+
 function zcat --description 'fuzzy-cat into clipboard'
-    set file (fzf-tmux --query="$1" --select-1 --exit-0)
+    set file (fzf-tmux --query="$1" --select-1 --exit-0 --preview='cat {}')
     [ -n \"$file\" ]; and cat "$file" | pbcopy
 end
 
 function gb --description 'fuzzy-checkout git branch'
     is_in_git_repo; or return
-    set branch (git for-each-ref --format='%(refname:short)' refs/{heads,remotes}/ | sort | fzf-tmux)
+    set branch (git for-each-ref --format='%(refname:short)' refs/{heads,remotes}/ | sort | fzf-tmux --preview="git log -b {} --pretty=format:'%h %d %s'")
     git checkout $branch
 end
 
@@ -166,11 +172,11 @@ function fish_prompt
     set last_status $status
 
     set_color $fish_color_cwd
-    printf '%s' (prompt_pwd)
+    printf '%s ' (prompt_pwd)
     set_color normal
 
-    printf '%s ' (__fish_git_prompt)
-    set_color normal
+    #printf '%s ' (__fish_git_prompt)
+    #set_color normal
 
     z --add "$PWD"
 end
