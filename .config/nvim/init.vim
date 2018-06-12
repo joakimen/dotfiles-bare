@@ -110,6 +110,11 @@ endif
 iabbrev @@ joakim.engeset@gmail.com
 iabbrev aauth Author: Joakim Engeset <joakim.engeset@gmail.com>
 iabbrev todo TODO
+
+" insert date (example: 'Mon 04 Jun 2018')
+iabbrev idate <C-R>=<sid>getdate()<CR>
+
+" display help in vertical split
 cabbrev h vert h
 
 " }}}
@@ -252,6 +257,10 @@ xmap <CR> <Plug>(EasyAlign)
 " }}}
 " functions --------------------------------------------------------------- {{{
 
+function! s:getdate()
+    return strftime("%a %d %b %Y")
+endfunction
+
 function! s:run()
 
     " Executes the current script. Shebang will be used if it exists, otherwise
@@ -371,7 +380,7 @@ augroup ft_notes
     au BufRead TODO.md setlocal foldlevel=99
 
     " insert new header with current date
-    au FileType notes nnoremap _ 2o<Esc>:.!date "+\%d \%b \%Y"<CR>I# <Esc>0
+    au FileType notes nnoremap _ o<CR># <C-r>=<sid>getdate()<CR><Esc>0
 
     " mark item as done with timestamp
     au FileType notes nnoremap - mp0rx:r !date "+[\%H:\%M]"<CR>kJ`p
