@@ -404,7 +404,7 @@ augroup end
 
 augroup ft_python
     au!
-    au FileType python nnoremap <F5> :w !python3<CR>
+    au FileType python nnoremap <F5> :sp term:///usr/bin/env python3 %<CR>
     au FileType python nnoremap <leader>r :w<CR>:py3file %<CR>
     au FileType python set equalprg=autopep8\ -
 augroup end
@@ -436,6 +436,16 @@ augroup ft_zsh
     au FileType zsh nnoremap <F5> :w !bash<CR>
     au FileType zsh nnoremap <Leader>r :w !bash<CR>
     au FileType zsh setlocal sw=2 sts=2
+augroup end
+
+augroup ft_json
+    au!
+    au! BufWritePre *.json :%!python3 -m json.tool
+augroup end
+
+augroup ft_applescript
+    au!
+    au FileType applescript nnoremap <F5> :sp term:///usr/bin/env osascript %<CR>
 augroup end
 
 " }}}
