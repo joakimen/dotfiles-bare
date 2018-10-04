@@ -6,12 +6,17 @@
 # source stuff ------------------------------------------------------------ {{{
 
 # api-tokens etc
-
 [ -s ~/.tokens ]; and source ~/.tokens
 [ -s ~/.z.fish ]; and source ~/.z.fish
 
 # }}}
 # environment variables --------------------------------------------------- {{{
+
+set -xg REPO $HOME/repo/intility
+set -xg WIGGIN_REPO $REPO/Wiggin/WigginDB/Data
+set -xg WIGGIN_UID aa323
+set -xg WIGGIN_DB aa323_Wiggin
+set -xg WIGGIN_SERVER 'i2-rotdsql-001'
 
 set -xg PATH $PATH $HOME/bin
 set -xg EDITOR "nvim"
@@ -53,9 +58,9 @@ alias tmux "tmux -2 -u"
 alias tks "tmux kill-server"
 
 # homebrew
-alias in "brew install"
-alias se "brew search"
-alias re "brew remove"
+alias bi "brew install"
+alias bs "brew search"
+alias br "brew remove"
 alias bup "brew update"
 alias bug "brew upgrade"
 alias bci "brew cask install"
@@ -101,28 +106,45 @@ function n --description 'test for network connectivity'
     end
 end
 
-function fe --description 'fuzzy-edit'
+function fzf-select-one --description 'select a single object from stdin'
     set file (fzf-tmux --query="$1" --select-1 --exit-0 --preview='cat {}')
-    [ -n "$file" ]; and eval $EDITOR \"$file\"
+    [ -n "$file" ]; and echo $file
 end
 
-function ztig --description 'fuzzy-tig'
-    set file (fzf-tmux --query="$1" --select-1 --exit-0 --preview='cat {}')
-    [ -n "$file" ]; and eval tig \"$file\"
+
+function fe --description 'fzf -> edit'
+    set file (fzf-select-one); or return
+    eval $EDITOR \"$file\"
 end
 
-function zcat --description 'fuzzy-cat into clipboard'
-    set file (fzf-tmux --query="$1" --select-1 --exit-0 --preview='cat {}')
-    [ -n \"$file\" ]; and cat "$file" | pbcopy
+function ztig --description 'fzf -> tig'
+    set file (fzf-select-one); or return
+    eval tig \"$file\"
 end
 
-function gb --description 'fuzzy-checkout git branch'
+function zcat --description 'fzf -> cat -> clipboard'
+    set file (fzf-select-one); or return
+    cat "$file" | pbcopy
+end
+
+function zgd --description 'fzf -> git diff'
+    set file (fzf-select-one); or return
+    git diff "$file"
+end
+
+function gb --description 'fzf -> git checkout branch'
     is_in_git_repo; or return
-    set branch (git for-each-ref --format='%(refname:short)' refs/{heads,remotes}/ | sort | fzf-tmux --preview="git log -b {} --pretty=format:'%h %d %s'")
+    set log_pattern "git log -b {} --pretty=format:'%h %d %s'"
+    set branch (git for-each-ref --format='%(refname:short)' refs/{heads,remotes}/ | sort | fzf-tmux --preview=$log_pattern)
     git checkout $branch
 end
 
-function kl --description 'fuzzy-kill pid'
+function fserv --description 'fzf -> set current Wiggin server'
+    set file (cat ~/.config/wiggin/SERVERS | fzf-tmux --query="$1" --select-1 --exit-0)
+    set -xg WIGGIN_SERVER $file
+end
+
+function kl --description 'fzf -> kill -9 <pid>'
     set pid (ps -ef | fzf-tmux | awk '{print $2}')
     [ -n $pid ]; and kill -9 $pid
 end

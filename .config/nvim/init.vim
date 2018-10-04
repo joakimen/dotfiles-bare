@@ -12,14 +12,12 @@ call plug#begin('~/.vim/plugged')
 
 Plug 'ajh17/VimCompletesMe'
 Plug 'benmills/vimux'
-Plug 'christoomey/vim-tmux-navigator'
 Plug 'haya14busa/incsearch.vim'
 Plug 'honza/vim-snippets'
-Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'mhinz/vim-signify'
-Plug 'junegunn/vim-easy-align',   { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
+Plug 'tommcdo/vim-lion'
 Plug 'kana/vim-textobj-entire'
 Plug 'kana/vim-textobj-user'
 Plug 'majutsushi/tagbar'
@@ -29,17 +27,20 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'vim-scripts/VisIncr'
 Plug 'w0rp/ale'
-Plug 'xolox/vim-misc'
-Plug 'xolox/vim-notes'
 Plug 'dag/vim-fish'
 Plug 'vim-scripts/c.vim'
+Plug 'justinmk/vim-sneak'
 
 " Color schemes
+Plug 'romainl/apprentice'
+Plug 'w0ng/vim-hybrid'
 Plug 'freeo/vim-kalisi'
 Plug 'jnurmine/Zenburn'
 Plug 'morhetz/gruvbox'
 Plug 'sickill/vim-monokai'
 Plug 'tomasr/molokai'
+Plug 'junegunn/seoul256.vim'
+Plug 'alok/notational-fzf-vim'
 
 call plug#end()
 
@@ -86,8 +87,9 @@ set autoread
 " colors ------------------------------------------------------------------ {{{
 
 set background=dark
-let g:gruvbox_contrast_dark='soft'
-colorscheme gruvbox
+"let g:gruvbox_contrast_dark='soft'
+colorscheme apprentice
+"colorscheme seoul256
 
 highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
@@ -120,6 +122,19 @@ cabbrev h vert h
 " }}}
 " keybindings ------------------------------------------------------------- {{{
 
+" markdown bindings, stolen from junegunn choi
+nnoremap <leader>1 m`yypVr=``
+nnoremap <leader>2 m`yypVr-``
+nnoremap <leader>3 m`^i### <esc>``4l
+nnoremap <leader>4 m`^i#### <esc>``5l
+nnoremap <leader>5 m`^i##### <esc>``6l
+
+" window navigation
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
 " toggle fold
 nnoremap , za
 
@@ -128,6 +143,9 @@ nnoremap <silent>K :exec 'setlocal foldlevel='. (&foldlevel > 0 ? 0: 2)<CR>
 
 " google word under cursor
 nnoremap <leader>? :call <SID>google(expand("<cWORD>"))<cr>
+
+" Remove tabs and trailing whitespace
+nnoremap <silent> <Leader>w :call CleanupWhitespace()<CR>
 
 " diff-keybinds
 nnoremap dp :diffput<CR>
@@ -184,6 +202,10 @@ tnoremap jk <C-\><C-n>
 " }}}
 " plugin settings --------------------------------------------------------- {{{
 
+" notational velocity
+let g:nv_use_short_pathnames = 1
+let g:nv_search_paths = ['~/Documents/Notes']
+
 " tagbar
 let g:tagbar_sort=0
 let g:tagbar_autofocus=0
@@ -193,21 +215,6 @@ let g:ale_fixers = {
             \   'python': ['flake8'],
             \}
 
-
-" EasyAlign
-let g:easy_align_delimiters = {
-            \ '-': {
-            \     'pattern':       '-',
-            \     'left_margin':   1,
-            \     'right_margin':  1,
-            \     'stick_to_left': 0
-            \   }
-            \ }
-
-" vim-notes
-let g:notes_directories = ['~/Documents/Notes']
-let g:notes_suffix = '.md'
-let g:notes_tab_indents = 0
 
 " }}}
 " plugin keybindings ------------------------------------------------------ {{{
@@ -221,8 +228,10 @@ nnoremap <silent><Leader>. :ALENext<CR>
 
 " fzf.vim
 nnoremap <silent> <C-f> :FZF<CR>
+nnoremap <silent> <C-g> :Rg<CR>
 nnoremap <silent> <C-b> :Buffers<CR>
 nnoremap <silent> <C-c> :Colors<CR>
+nnoremap <silent> <C-l> :Lines<CR>
 
 " fugitive.vim
 nnoremap gs :Gstatus<CR>
@@ -247,18 +256,28 @@ map /  <Plug>(incsearch-forward)
 map ?  <Plug>(incsearch-backward)
 map g/ <Plug>(incsearch-stay)
 
-" vim-notes
-nnoremap <Leader>n :Note 
-nnoremap <Leader>t :Note TODO<CR>
-
-" EasyAlign
-xmap <CR> <Plug>(EasyAlign)
+" notational fzf
+nnoremap <silent> <C-n> :NV<CR>
+nnoremap <silent> <Leader>t :edit ~/Documents/Notes/TODO.md<CR>
 
 " }}}
 " functions --------------------------------------------------------------- {{{
 
 function! s:getdate()
     return strftime("%a %d %b %Y")
+endfunction
+
+function! CleanupWhitespace()
+
+    " remove CRLF
+    %s///e
+
+    " remove trailing whitespace
+    %s/\v\s+$//e
+
+    " format tabs according to settingsa
+    retab
+
 endfunction
 
 function! s:run()
@@ -380,10 +399,10 @@ augroup ft_notes
     au BufRead TODO.md setlocal foldlevel=99
 
     " insert new header with current date
-    au FileType notes nnoremap _ o<CR># <C-r>=<sid>getdate()<CR><Esc>0
+    au FileType markdown nnoremap _ o<CR># <C-r>=<sid>getdate()<CR><Esc>0
 
     " mark item as done with timestamp
-    au FileType notes nnoremap - mp0rx:r !date "+[\%H:\%M]"<CR>kJ`p
+    au FileType markdown nnoremap - mp0rx:r !date "+[\%H:\%M]"<CR>kJ`p
 
 augroup end
 
@@ -440,7 +459,8 @@ augroup end
 
 augroup ft_json
     au!
-    au! BufWritePre *.json :%!python3 -m json.tool
+    au FileType json set nowrap
+    au BufWritePre *.json :%!python3 -m json.tool
 augroup end
 
 augroup ft_applescript
