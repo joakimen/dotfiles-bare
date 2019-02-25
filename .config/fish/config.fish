@@ -12,19 +12,22 @@
 # }}}
 # environment variables --------------------------------------------------- {{{
 
-set -xg REPO $HOME/repo/intility
-set -xg WIGGIN_REPO $REPO/Wiggin/WigginDB/Data
+set -xg REPO $HOME/dev/dev.azure.com/
+set -xg WYRM_REPO $REPO/Wyrm
+set -xg WIGGIN_REPO $REPO/Wiggin
 set -xg WIGGIN_UID aa323
 set -xg WIGGIN_DB aa323_Wiggin
 set -xg WIGGIN_SERVER 'i2-rotdsql-001'
 
-set -xg PATH $PATH $HOME/bin
+set -xg GOPATH $HOME/dev/local/go
+set -xg PATH $PATH $HOME/bin $GOPATH/bin
 set -xg EDITOR "nvim"
 set -xg DIFF $EDITOR
 set -xg VISUAL $EDITOR
 set -xg SVN_EDITOR $EDITOR
 set -xg RIPGREP_CONFIG_PATH $HOME/.rgrc
 
+set -g fish_user_paths "/usr/local/sbin" $fish_user_paths
 # }}}
 # aliases ----------------------------------------------------------------- {{{
 
@@ -39,6 +42,7 @@ alias bc "$EDITOR ~/.bashrc"
 alias zc "$EDITOR ~/.zshrc"
 alias gc "$EDITOR ~/.gitconfig"
 alias srcf "source ~/.config/fish/config.fish"
+alias git hub
 
 # system
 alias vim nvim
@@ -68,6 +72,7 @@ alias bci "brew cask install"
 # Git
 alias g git
 alias dotfile "/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME"
+
 
 # }}}
 # functions --------------------------------------------------------------- {{{
@@ -150,7 +155,7 @@ function kl --description 'fzf -> kill -9 <pid>'
 end
 
 function staticdata --description 'determine size of static-data files'
-    ls $WIGGIN_REPO/*.sql | xargs wc -l | sort -k 1 -r | fzf-tmux
+    ls $WIGGIN_REPO/WigginDB/Data/*.sql | xargs wc -l | sort -k 1 -r | fzf-tmux
 end
 
 function ext --description 'tarball all files in current directory'
@@ -199,8 +204,6 @@ function fish_prompt
 
     #printf '%s ' (__fish_git_prompt)
     #set_color normal
-
-    z --add "$PWD"
 end
 
 # }}}

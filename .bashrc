@@ -183,7 +183,7 @@ gr() {
 
 # determine largest static-data files
 staticdata() {
-  ls $WIGGIN_REPO/*.sql | xargs wc -l | sort -k 1 -r | fzf-tmux
+  ls $WIGGIN_REPO/WigginDB/Data/*.sql | xargs wc -l | sort -k 1 -r | fzf-tmux
 }
 
 # return ip of parallels instance
