@@ -11,25 +11,20 @@ set shell=/bin/bash\ --login
 call plug#begin('~/.vim/plugged')
 
 Plug 'ajh17/VimCompletesMe'
-Plug 'benmills/vimux'
 Plug 'haya14busa/incsearch.vim'
-Plug 'honza/vim-snippets'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'mhinz/vim-signify'
 Plug 'tommcdo/vim-lion'
-Plug 'kana/vim-textobj-entire'
-Plug 'kana/vim-textobj-user'
 Plug 'majutsushi/tagbar'
 Plug 'scrooloose/nerdcommenter'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'vim-scripts/VisIncr'
-Plug 'w0rp/ale'
 Plug 'dag/vim-fish'
-Plug 'vim-scripts/c.vim'
-Plug 'justinmk/vim-sneak'
+Plug 'alok/notational-fzf-vim'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 " Color schemes
 Plug 'romainl/apprentice'
@@ -40,7 +35,6 @@ Plug 'morhetz/gruvbox'
 Plug 'sickill/vim-monokai'
 Plug 'tomasr/molokai'
 Plug 'junegunn/seoul256.vim'
-Plug 'alok/notational-fzf-vim'
 
 call plug#end()
 
@@ -87,24 +81,10 @@ set autoread
 " colors ------------------------------------------------------------------ {{{
 
 set background=dark
-"let g:gruvbox_contrast_dark='soft'
-colorscheme apprentice
-"colorscheme seoul256
+colorscheme kalisi
 
 highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
-
-" }}}
-" environment ------------------------------------------------------------- {{{
-
-" change cursor-shape in tmux and iterm
-if exists("$TMUX")
-    let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
-    let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
-else
-    let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-    let &t_EI = "\<Esc>]50;CursorShape=0\x7"
-endif
 
 " }}}
 " abbreviations ----------------------------------------------------------- {{{
@@ -139,7 +119,7 @@ nnoremap <C-l> <C-w>l
 nnoremap , za
 
 " toggle all folds using &foldlevel
-nnoremap <silent>K :exec 'setlocal foldlevel='. (&foldlevel > 0 ? 0: 2)<CR>
+nnoremap <silent><BS> :exec 'setlocal foldlevel='. (&foldlevel > 0 ? 0: 10)<CR>
 
 " google word under cursor
 nnoremap <leader>? :call <SID>google(expand("<cWORD>"))<cr>
@@ -210,28 +190,17 @@ let g:nv_search_paths = ['~/Documents/Notes']
 let g:tagbar_sort=0
 let g:tagbar_autofocus=0
 
-" ale
-let g:ale_fixers = {
-            \   'python': ['flake8'],
-            \}
-
-
 " }}}
 " plugin keybindings ------------------------------------------------------ {{{
 
 " vim-signify
 let g:signify_vcs_list = ['git']
 
-" ale
-nnoremap <silent><Leader>, :ALEPrevious<CR>
-nnoremap <silent><Leader>. :ALENext<CR>
-
 " fzf.vim
 nnoremap <silent> <C-f> :FZF<CR>
 nnoremap <silent> <C-g> :Rg<CR>
 nnoremap <silent> <C-b> :Buffers<CR>
 nnoremap <silent> <C-c> :Colors<CR>
-nnoremap <silent> <C-l> :Lines<CR>
 
 " fugitive.vim
 nnoremap gs :Gstatus<CR>
@@ -248,8 +217,8 @@ cnoreabbrev pu PlugUpdate
 cnoreabbrev pug PlugUpgrade
 
 " Tagbar
-nnoremap <silent> <F12> :TagbarToggle<CR>
-inoremap <silent> <F12> <C-o>:TagbarToggle<CR>
+nnoremap <silent> <F11> :TagbarToggle<CR>
+inoremap <silent> <F11> <C-o>:TagbarToggle<CR>
 
 " incsearch-vim
 map /  <Plug>(incsearch-forward)
@@ -257,9 +226,10 @@ map ?  <Plug>(incsearch-backward)
 map g/ <Plug>(incsearch-stay)
 
 " notational fzf
-nnoremap <silent> <C-n> :NV<CR>
-nnoremap <silent> <Leader>t :edit ~/Documents/Notes/TODO.md<CR>
+nnoremap <silent> <Leader>n :NV<CR>
 
+" ssms grid-content to ascii
+nnoremap <silent> <Leader>f :call CreateAsciiTable()<CR>
 " }}}
 " functions --------------------------------------------------------------- {{{
 
@@ -270,53 +240,15 @@ endfunction
 function! CleanupWhitespace()
 
     " remove CRLF
-    %s///e
+    %s///e
 
     " remove trailing whitespace
     %s/\v\s+$//e
 
-    " format tabs according to settingsa
+    " format tabs according to settings
     retab
 
 endfunction
-
-function! s:run()
-
-    " Executes the current script. Shebang will be used if it exists, otherwise
-    " binary will be guessed based on filetype
-
-    " Absolute path to current file
-    let file = expand('%:p')
-    let head = getline(1)
-    let pos  = stridx(head, '#!')
-    let bin  = ''
-
-    " Determine if we have a shebang
-    if pos != -1
-        " Aaaaaand we have a shebang. Build execution string based on shebang
-        let bin = strpart(head, pos + 2)
-    else
-
-        " Set executable based on filetype
-        if &filetype == 'ruby'
-            let bin = '/usr/bin/env ruby'
-        elseif &filetype == 'python'
-            let bin = '/usr/bin/env python'
-        elseif &filetype == 'sh'
-            let bin = '/usr/bin/env bash'
-        endif
-
-    endif
-
-    " If no executable could be determined, return
-    if empty(bin)
-        echom 'run(): Execution of filetype "'.&filetype.'" is not supported'
-        return
-    endif
-
-    let command = bin.' '.file
-    call VimuxRunCommand(command)
-endf
 
 function! s:google(pat)
     let q = '"'.substitute(a:pat, '["\n]', ' ', 'g').'"'
@@ -325,34 +257,80 @@ function! s:google(pat)
     call system(printf('open "https://www.google.com/search?q=%s"', q))
 endfunction
 
+" format ssms grid-content as ascii-table
+function! CreateAsciiTable()
+
+    " delete empty lines
+    silent g/^$/de
+
+    " remove carriage returns
+    silent %s/\r/\r/e
+
+    " replace tabs with pipes
+    silent %s/\t/|/e
+
+    " wrap line in pipes
+    silent %s/.*/|\0|/e
+
+    " align cells to pipes using 'lion'-plugin
+    silent normal glip|
+
+    " add a dash-separator below column headers
+    silent normal yypVr-
+
+    " yank entire buffer
+    silent %y
+endfunction
+
+
+" mark all lines in the buffer (except lines 1-2) as incomplete items
+" if they don't match any note-taking symbols.
 function! TODOMarkIncompleteItems()
+
+    " mark initial position
     normal mp
+
+    " apply function to all lines except lines 1-2k
     3,$ call <SID>todo_mark_incomplete_item()
+
+    " return to initial position
     normal `p
+
+    " remote position marker when done
     delmarks mp
 endfunction
 
+
+" mark line as an incomplete item, '_ ', if it doesn't match any of the
+" note-taking symbols already. our note-taking symbols are as follows:
+"
+"   # header
+"   x completed item
+"   _ incomplete item
 function! s:todo_mark_incomplete_item()
 
     let line = getline('.')
-    let char = strpart(line, 0, 1)
-    let notechars = ['#', '_', 'x']
 
-    " if line is empty, don't bother formatting
+    " if line is empty, skip it
     if line =~ '^\s*$' | return | endif
+
+    " extract the first character of the line
+    let char = strpart(line, 0, 1)
+
+    " define recognized note-taking symbols
+    let notechars = ['#', '_', 'x']
 
     " remove leading whitespace
     let line = substitute(line, '^\s\+', '', 'g')
 
-    " mark line as an uncompleted item
+    " inspect the first character of the line. if the character is not a
+    " recognized symbol, mark the line as an incomplete item.
     if index(notechars, char) == -1
         call setline('.', '_ '.line)
     endif
 
 endfunction
 
-
-nnoremap <silent><Leader>m :call CleanupWindowsCrap()<CR>
 " }}}
 " autocommands ------------------------------------------------------------ {{{
 
@@ -374,6 +352,12 @@ augroup format_whitespace
     au InsertEnter * silent! match ExtraWhitespace /\s\+\%#\@<!$/
 augroup end
 
+" wrap text in quickfix
+augroup quickfix
+    autocmd!
+    autocmd FileType qf setlocal wrap
+augroup END
+
 " auto-source .vimrc
 augroup vimrc
     au!
@@ -389,19 +373,31 @@ augroup end
 " }}}
 " filetype {{{
 
+augroup ft_go
+    au!
+    au FileType go nnoremap <silent> <C-t> :GoAlternate<CR>
+    au FileType go nnoremap <silent> <Leader>h :GoDoc<CR>
+    au FileType go nnoremap <silent> <Leader>t :GoTest<CR>
+    au FileType go nnoremap <silent> <Leader>r :GoRun<CR>
+    au FileType go nnoremap <silent> <Leader>0 :TagbarToggle<CR>
+    au FileType go inoreabbrev iferr if err != nil {<CR>log.Fatal(err)<CR>}
+    au FileType go let g:tagbar_width=60
+augroup end
+
+" support for some note-taking stuff..
 augroup ft_notes
     au!
 
-    " mark untagged lines as incomplete
+    " mark untagged lines as incomplete on write
     au BufWritePost TODO.md call TODOMarkIncompleteItems()
 
-    " open all folds in TODO
-    au BufRead TODO.md setlocal foldlevel=99
+    " open all folds when opening file
+    au BufRead TODO.md setlocal foldlevel=10
 
     " insert new header with current date
     au FileType markdown nnoremap _ o<CR># <C-r>=<sid>getdate()<CR><Esc>0
 
-    " mark item as done with timestamp
+    " mark line as done with timestamp
     au FileType markdown nnoremap - mp0rx:r !date "+[\%H:\%M]"<CR>kJ`p
 
 augroup end
@@ -452,8 +448,8 @@ augroup end
 
 augroup ft_zsh
     au!
-    au FileType zsh nnoremap <F5> :w !bash<CR>
-    au FileType zsh nnoremap <Leader>r :w !bash<CR>
+    au FileType zsh nnoremap <F5> :sp term:///usr/bin/env zsh %<CR>
+    au FileType zsh nnoremap <Leader>r :sp term:///usr/bin/env zsh %<CR>
     au FileType zsh setlocal sw=2 sts=2
 augroup end
 
@@ -466,6 +462,7 @@ augroup end
 augroup ft_applescript
     au!
     au FileType applescript nnoremap <F5> :sp term:///usr/bin/env osascript %<CR>
+    au FileType applescript nnoremap <Leader>r :sp term:///usr/bin/env osascript %<CR>
 augroup end
 
 " }}}
