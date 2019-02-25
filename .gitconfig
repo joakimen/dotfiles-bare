@@ -30,6 +30,8 @@
     l = log
     ll = log --name-status --graph
     ls = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    ld = ls-files -d
+    lm = ls-files -m
     pl = pull
     ps = push
     s = status
@@ -37,3 +39,5 @@
     untracked = ls-files --others --exclude-standard
 [web]
     browser = open
+[credential]
+	helper = store
