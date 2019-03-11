@@ -234,52 +234,52 @@ nnoremap <silent> <Leader>f :call CreateAsciiTable()<CR>
 " functions --------------------------------------------------------------- {{{
 
 function! s:getdate()
-    return strftime("%a %d %b %Y")
+  return strftime("%a %d %b %Y")
 endfunction
 
 function! CleanupWhitespace()
 
-    " remove CRLF
-    %s///e
+  " remove CRLF
+  %s///e
 
-    " remove trailing whitespace
-    %s/\v\s+$//e
+  " remove trailing whitespace
+  %s/\v\s+$//e
 
-    " format tabs according to settings
-    retab
+  " format tabs according to settings
+  retab
 
 endfunction
 
 function! s:google(pat)
-    let q = '"'.substitute(a:pat, '["\n]', ' ', 'g').'"'
-    let q = substitute(q, '[[:punct:] ]',
-                \ '\=printf("%%%02X", char2nr(submatch(0)))', 'g')
-    call system(printf('open "https://www.google.com/search?q=%s"', q))
+  let q = '"'.substitute(a:pat, '["\n]', ' ', 'g').'"'
+  let q = substitute(q, '[[:punct:] ]',
+        \ '\=printf("%%%02X", char2nr(submatch(0)))', 'g')
+  call system(printf('open "https://www.google.com/search?q=%s"', q))
 endfunction
 
 " format ssms grid-content as ascii-table
 function! CreateAsciiTable()
 
-    " delete empty lines
-    silent g/^$/de
+  " delete empty lines
+  silent g/^$/de
 
-    " remove carriage returns
-    silent %s/\r/\r/e
+  " remove carriage returns
+  silent %s/\r/\r/e
 
-    " replace tabs with pipes
-    silent %s/\t/|/e
+  " replace tabs with pipes
+  silent %s/\t/|/e
 
-    " wrap line in pipes
-    silent %s/.*/|\0|/e
+  " wrap line in pipes
+  silent %s/.*/|\0|/e
 
-    " align cells to pipes using 'lion'-plugin
-    silent normal glip|
+  " align cells to pipes using 'lion'-plugin
+  silent normal glip|
 
-    " add a dash-separator below column headers
-    silent normal yypVr-
+  " add a dash-separator below column headers
+  silent normal yypVr-
 
-    " yank entire buffer
-    silent %y
+  " yank entire buffer
+  silent %y
 endfunction
 
 
@@ -287,17 +287,17 @@ endfunction
 " if they don't match any note-taking symbols.
 function! TODOMarkIncompleteItems()
 
-    " mark initial position
-    normal mp
+  " mark initial position
+  normal mp
 
-    " apply function to all lines except lines 1-2k
-    3,$ call <SID>todo_mark_incomplete_item()
+  " apply function to all lines except lines 1-2k
+  3,$ call <SID>todo_mark_incomplete_item()
 
-    " return to initial position
-    normal `p
+  " return to initial position
+  normal `p
 
-    " remote position marker when done
-    delmarks mp
+  " remote position marker when done
+  delmarks mp
 endfunction
 
 
@@ -309,25 +309,25 @@ endfunction
 "   _ incomplete item
 function! s:todo_mark_incomplete_item()
 
-    let line = getline('.')
+  let line = getline('.')
 
-    " if line is empty, skip it
-    if line =~ '^\s*$' | return | endif
+  " if line is empty, skip it
+  if line =~ '^\s*$' | return | endif
 
-    " extract the first character of the line
-    let char = strpart(line, 0, 1)
+  " extract the first character of the line
+  let char = strpart(line, 0, 1)
 
-    " define recognized note-taking symbols
-    let notechars = ['#', '_', 'x']
+  " define recognized note-taking symbols
+  let notechars = ['#', '_', 'x']
 
-    " remove leading whitespace
-    let line = substitute(line, '^\s\+', '', 'g')
+  " remove leading whitespace
+  let line = substitute(line, '^\s\+', '', 'g')
 
-    " inspect the first character of the line. if the character is not a
-    " recognized symbol, mark the line as an incomplete item.
-    if index(notechars, char) == -1
-        call setline('.', '_ '.line)
-    endif
+  " inspect the first character of the line. if the character is not a
+  " recognized symbol, mark the line as an incomplete item.
+  if index(notechars, char) == -1
+    call setline('.', '_ '.line)
+  endif
 
 endfunction
 
@@ -338,124 +338,124 @@ endfunction
 
 " assume last known position of file
 augroup resume_file_position
-    au!
-    au BufReadPost *
-        \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
-        \ |   exe "normal! g`\""
-        \ | endif
+  au!
+  au BufReadPost *
+    \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
+    \ |   exe "normal! g`\""
+    \ | endif
 augroup end
 
 " highlight unwanted whitespace
 augroup format_whitespace
-    au!
-    au BufNewFile,BufRead,InsertLeave * silent! match ExtraWhitespace /\s\+$/
-    au InsertEnter * silent! match ExtraWhitespace /\s\+\%#\@<!$/
+  au!
+  au BufNewFile,BufRead,InsertLeave * silent! match ExtraWhitespace /\s\+$/
+  au InsertEnter * silent! match ExtraWhitespace /\s\+\%#\@<!$/
 augroup end
 
 " wrap text in quickfix
 augroup quickfix
-    autocmd!
-    autocmd FileType qf setlocal wrap
+  autocmd!
+  autocmd FileType qf setlocal wrap
 augroup END
 
 " auto-source .vimrc
 augroup vimrc
-    au!
-    au BufWritePost $MYVIMRC source $MYVIMRC
+  au!
+  au BufWritePost $MYVIMRC source $MYVIMRC
 augroup end
 
 " start terminal-mode in insert-mode
 augroup term_startinsert
-    au!
-    au BufWinEnter,WinEnter term://* startinsert
+  au!
+  au BufWinEnter,WinEnter term://* startinsert
 augroup end
 
 " }}}
 " filetype {{{
 
 augroup ft_go
-    au!
-    au FileType go nnoremap <silent> <C-t> :GoAlternate<CR>
-    au FileType go nnoremap <silent> <Leader>h :GoDoc<CR>
-    au FileType go nnoremap <silent> <Leader>t :GoTest<CR>
-    au FileType go nnoremap <silent> <Leader>r :GoRun<CR>
-    au FileType go nnoremap <silent> <Leader>0 :TagbarToggle<CR>
-    au FileType go inoreabbrev iferr if err != nil {<CR>log.Fatal(err)<CR>}
-    au FileType go let g:tagbar_width=60
+  au!
+  au FileType go nnoremap <silent> <C-t> :GoAlternate<CR>
+  au FileType go nnoremap <silent> <Leader>h :GoDoc<CR>
+  au FileType go nnoremap <silent> <Leader>t :GoTest<CR>
+  au FileType go nnoremap <silent> <Leader>r :GoRun<CR>
+  au FileType go nnoremap <silent> <Leader>0 :TagbarToggle<CR>
+  au FileType go inoreabbrev iferr if err != nil {<CR>log.Fatal(err)<CR>}
+  au FileType go let g:tagbar_width=60
 augroup end
 
 " support for some note-taking stuff..
 augroup ft_notes
-    au!
+  au!
 
-    " mark untagged lines as incomplete on write
-    au BufWritePost TODO.md call TODOMarkIncompleteItems()
+  " mark untagged lines as incomplete on write
+  au BufWritePost TODO.md call TODOMarkIncompleteItems()
 
-    " open all folds when opening file
-    au BufRead TODO.md setlocal foldlevel=10
+  " open all folds when opening file
+  au BufRead TODO.md setlocal foldlevel=10
 
-    " insert new header with current date
-    au FileType markdown nnoremap _ o<CR># <C-r>=<sid>getdate()<CR><Esc>0
+  " insert new header with current date
+  au FileType markdown nnoremap _ o<CR># <C-r>=<sid>getdate()<CR><Esc>0
 
-    " mark line as done with timestamp
-    au FileType markdown nnoremap - mp0rx:r !date "+[\%H:\%M]"<CR>kJ`p
+  " mark line as done with timestamp
+  au FileType markdown nnoremap - mp0rx:r !date "+[\%H:\%M]"<CR>kJ`p
 
 augroup end
 
 augroup ft_ruby
-    au!
-    au FileType ruby nnoremap <leader>r :w<CR>:!ruby %<CR>
-    au FileType ruby setlocal omnifunc=rubycomplete#Complete
-    au FileType ruby compiler ruby
-    au FileType ruby,eruby let g:rubycomplete_buffer_loading = 1
-    au FileType ruby,eruby let g:rubycomplete_classes_in_global = 1
-    au FileType ruby,eruby let g:rubycomplete_rails = 1
+  au!
+  au FileType ruby nnoremap <leader>r :w<CR>:!ruby %<CR>
+  au FileType ruby setlocal omnifunc=rubycomplete#Complete
+  au FileType ruby compiler ruby
+  au FileType ruby,eruby let g:rubycomplete_buffer_loading = 1
+  au FileType ruby,eruby let g:rubycomplete_classes_in_global = 1
+  au FileType ruby,eruby let g:rubycomplete_rails = 1
 augroup end
 
 augroup ft_python
-    au!
-    au FileType python nnoremap <F5> :sp term:///usr/bin/env python3 %<CR>
-    au FileType python nnoremap <leader>r :w<CR>:py3file %<CR>
-    au FileType python set equalprg=autopep8\ -
+  au!
+  au FileType python nnoremap <F5> :sp term:///usr/bin/env python3 %<CR>
+  au FileType python nnoremap <leader>r :w<CR>:py3file %<CR>
+  au FileType python set equalprg=autopep8\ -
 augroup end
 
 augroup ft_autohotkey
-    au!
-    au FileType autohotkey setlocal sw=4 sts=4 ts=4
+  au!
+  au FileType autohotkey setlocal sw=4 sts=4 ts=4
 augroup end
 
 augroup ft_sql
-    au!
-    au FileType sql setlocal sw=4 sts=4 ts=4
+  au!
+  au FileType sql setlocal sw=4 sts=4 ts=4
 augroup end
 
 augroup ft_kotlin
-    au!
-    au FileType kotlin set makeprg=kotlinc\ -script\ %
+  au!
+  au FileType kotlin set makeprg=kotlinc\ -script\ %
 augroup end
 
 augroup ft_sh
-    au!
-    au FileType sh nnoremap <F5> :sp term:///usr/bin/env bash %<CR>
-    au FileType sh nnoremap <Leader>r :sp term:///usr/bin/env bash %<CR>
+  au!
+  au FileType sh nnoremap <F5> :sp term:///usr/bin/env bash %<CR>
+  au FileType sh nnoremap <Leader>r :sp term:///usr/bin/env bash %<CR>
 augroup end
 
 augroup ft_zsh
-    au!
-    au FileType zsh nnoremap <F5> :sp term:///usr/bin/env zsh %<CR>
-    au FileType zsh nnoremap <Leader>r :sp term:///usr/bin/env zsh %<CR>
+  au!
+  au FileType zsh nnoremap <F5> :sp term:///usr/bin/env zsh %<CR>
+  au FileType zsh nnoremap <Leader>r :sp term:///usr/bin/env zsh %<CR>
 augroup end
 
 augroup ft_json
-    au!
-    au FileType json set nowrap
-    au FileType json nnoremap <Leader>f :%!python3 -m json.tool<CR>
+  au!
+  au FileType json set nowrap
+  au FileType json nnoremap <Leader>f :%!python3 -m json.tool<CR>
 augroup end
 
 augroup ft_applescript
-    au!
-    au FileType applescript nnoremap <F5> :sp term:///usr/bin/env osascript %<CR>
-    au FileType applescript nnoremap <Leader>r :sp term:///usr/bin/env osascript %<CR>
+  au!
+  au FileType applescript nnoremap <F5> :sp term:///usr/bin/env osascript %<CR>
+  au FileType applescript nnoremap <Leader>r :sp term:///usr/bin/env osascript %<CR>
 augroup end
 
 " }}}
