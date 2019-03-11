@@ -12,12 +12,12 @@
 # }}}
 # environment variables --------------------------------------------------- {{{
 
-set -xg REPO $HOME/dev/dev.azure.com/
+set -xg REPO $HOME/dev/dev.azure.com
 set -xg WYRM_REPO $REPO/Wyrm
-set -xg WIGGIN_REPO $REPO/Wiggin
-set -xg WIGGIN_UID aa323
-set -xg WIGGIN_DB aa323_Wiggin
-set -xg WIGGIN_SERVER 'i2-rotdsql-001'
+set -xg W_REPO $REPO/Wiggin
+set -xg W_UID aa323
+set -xg W_DB aa323_Wiggin
+set -xg W_SVR 'i2-rotdsql-001'
 
 set -xg GOPATH $HOME/dev/local/go
 set -xg PATH $PATH $HOME/bin $GOPATH/bin
@@ -26,6 +26,8 @@ set -xg DIFF $EDITOR
 set -xg VISUAL $EDITOR
 set -xg SVN_EDITOR $EDITOR
 set -xg RIPGREP_CONFIG_PATH $HOME/.rgrc
+set -xg DOCKER_BUILDKIT 1
+set -xg GO111MODULE on
 
 set -g fish_user_paths "/usr/local/sbin" $fish_user_paths
 # }}}
