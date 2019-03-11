@@ -50,8 +50,9 @@ set clipboard+=unnamedplus
 set nrformats=
 set splitright
 set splitbelow
-set tabstop=4
-set shiftwidth=4
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
 set expandtab
 set shiftround
 set ignorecase
@@ -60,10 +61,10 @@ set gdefault
 set nobackup
 set noswapfile
 set textwidth=80
-set wrap
 set colorcolumn=80
+set wrap
 set virtualedit=block
-set listchars=tab:▸\ ,eol:¬,extends:❯,precedes:❮
+set listchars=tab:▸\ ,
 set list
 set completeopt=menuone,preview
 set formatoptions+=qrn1j
@@ -80,8 +81,7 @@ set autoread
 " }}}
 " colors ------------------------------------------------------------------ {{{
 
-set background=dark
-colorscheme kalisi
+colorscheme gruvbox
 
 highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
@@ -340,9 +340,9 @@ endfunction
 augroup resume_file_position
     au!
     au BufReadPost *
-                \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
-                \ |   exe "normal! g`\""
-                \ | endif
+        \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
+        \ |   exe "normal! g`\""
+        \ | endif
 augroup end
 
 " highlight unwanted whitespace
@@ -402,11 +402,6 @@ augroup ft_notes
 
 augroup end
 
-augroup ft_c
-    au!
-    au FileType c setlocal sw=2 sts=2
-augroup end
-
 augroup ft_ruby
     au!
     au FileType ruby nnoremap <leader>r :w<CR>:!ruby %<CR>
@@ -426,7 +421,12 @@ augroup end
 
 augroup ft_autohotkey
     au!
-    au FileType autohotkey setlocal sw=4 sts=4
+    au FileType autohotkey setlocal sw=4 sts=4 ts=4
+augroup end
+
+augroup ft_sql
+    au!
+    au FileType sql setlocal sw=4 sts=4 ts=4
 augroup end
 
 augroup ft_kotlin
@@ -434,29 +434,22 @@ augroup ft_kotlin
     au FileType kotlin set makeprg=kotlinc\ -script\ %
 augroup end
 
-augroup ft_yaml
-    au!
-    au FileType yaml setlocal sw=2 sts=2
-augroup end
-
 augroup ft_sh
     au!
     au FileType sh nnoremap <F5> :sp term:///usr/bin/env bash %<CR>
     au FileType sh nnoremap <Leader>r :sp term:///usr/bin/env bash %<CR>
-    au FileType sh setlocal sw=2 sts=2
 augroup end
 
 augroup ft_zsh
     au!
     au FileType zsh nnoremap <F5> :sp term:///usr/bin/env zsh %<CR>
     au FileType zsh nnoremap <Leader>r :sp term:///usr/bin/env zsh %<CR>
-    au FileType zsh setlocal sw=2 sts=2
 augroup end
 
 augroup ft_json
     au!
     au FileType json set nowrap
-    au BufWritePre *.json :%!python3 -m json.tool
+    au FileType json nnoremap <Leader>f :%!python3 -m json.tool<CR>
 augroup end
 
 augroup ft_applescript
