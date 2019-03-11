@@ -73,7 +73,7 @@ alias bci "brew cask install"
 
 # Git
 alias g git
-alias dotfile "/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME"
+alias d "/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME"
 
 
 # }}}
