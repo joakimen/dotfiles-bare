@@ -208,4 +208,12 @@ function fish_prompt
     #set_color normal
 end
 
+# stream logs from docker engine
+function docker_log
+  set pred 'process matches ".*(ocker|vpnkit).*"
+  || (process in {"taskgated-helper", "launchservicesd", "kernel"} 
+  && eventMessage contains[c] "docker")'
+  log stream --style syslog --level=debug --color=always --predicate "$pred"
+end
+
 # }}}
