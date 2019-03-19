@@ -24,7 +24,7 @@ Plug 'tpope/vim-surround'
 Plug 'vim-scripts/VisIncr'
 Plug 'dag/vim-fish'
 Plug 'alok/notational-fzf-vim'
-Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'fatih/vim-go'
 
 " Color schemes
 Plug 'romainl/apprentice'
@@ -230,6 +230,7 @@ nnoremap <silent> <Leader>n :NV<CR>
 
 " ssms grid-content to ascii
 nnoremap <silent> <Leader>f :call CreateAsciiTable()<CR>
+
 " }}}
 " functions --------------------------------------------------------------- {{{
 
