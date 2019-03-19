@@ -23,8 +23,8 @@ set -xg GOPATH $HOME/dev/local/go
 set -xg PATH $PATH $HOME/bin $GOPATH/bin
 set -xg EDITOR "nvim"
 set -xg DIFF $EDITOR
-set -xg VISUAL $EDITOR
-set -xg SVN_EDITOR $EDITOR
+#set -xg VISUAL $EDITOR
+#set -xg SVN_EDITOR $EDITOR
 set -xg RIPGREP_CONFIG_PATH $HOME/.rgrc
 set -xg DOCKER_BUILDKIT 1
 set -xg GO111MODULE on
@@ -169,51 +169,10 @@ function ext --description 'tarball all files in current directory'
     mv ../"$name".tgz .
 end
 
-# }}}
-
-# }}}
-# environment ------------------------------------------------------------- {{{
-
-# disable fish greeting
-set -g -x fish_greeting ''
-
-# git prompt options
-set __fish_git_prompt_showcolorhints 'yes'
-set __fish_git_prompt_showdirtystate 'yes'
-set __fish_git_prompt_showstashstate 'yes'
-set __fish_git_prompt_showuntrackedfiles 'yes'
-set __fish_git_prompt_showupstream 'yes'
-
-# git prompt status chars
-set __fish_git_prompt_char_cleanstate      '✔'
-set __fish_git_prompt_char_dirtystate      '✚'
-set __fish_git_prompt_char_invalidstate    '✖'
-set __fish_git_prompt_char_stagedstate     '→'
-set __fish_git_prompt_char_stateseparator  '|'
-set __fish_git_prompt_char_untrackedfiles  '…'
-set __fish_git_prompt_char_upstream_ahead  '↑'
-set __fish_git_prompt_char_upstream_behind '↓'
-set __fish_git_prompt_char_upstream_equal ''
-set __fish_git_prompt_char_upstream_prefix ''
-
-# prompt definition
-function fish_prompt
-    set last_status $status
-
-    set_color $fish_color_cwd
-    printf '%s ' (prompt_pwd)
-    set_color normal
-
-    #printf '%s ' (__fish_git_prompt)
-    #set_color normal
-end
-
-# stream logs from docker engine
-function docker_log
+function docker_log --description 'stream logs from docker engine'
   set pred 'process matches ".*(ocker|vpnkit).*"
   || (process in {"taskgated-helper", "launchservicesd", "kernel"} 
   && eventMessage contains[c] "docker")'
   log stream --style syslog --level=debug --color=always --predicate "$pred"
 end
-
 # }}}
