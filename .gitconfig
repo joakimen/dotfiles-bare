@@ -27,7 +27,7 @@
     d = difftool
     ds = difftool --staged
     df = diff
-    l = log
+    l = log --graph --decorate --oneline
     ll = log --name-status --graph
     ls = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     ld = ls-files -d
