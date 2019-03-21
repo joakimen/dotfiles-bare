@@ -240,9 +240,6 @@ endfunction
 
 function! CleanupWhitespace()
 
-  " remove CRLF
-  %s///e
-
   " remove trailing whitespace
   %s/\v\s+$//e
 
