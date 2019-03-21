@@ -12,39 +12,31 @@
 # }}}
 # environment variables --------------------------------------------------- {{{
 
-set -xg REPO $HOME/dev/dev.azure.com
+set -xg REPO ~/dev/dev.azure.com
 set -xg WYRM_REPO $REPO/Wyrm
 set -xg W_REPO $REPO/Wiggin
 set -xg W_UID aa323
 set -xg W_DB aa323_Wiggin
 set -xg W_SVR 'i2-rotdsql-001'
 
-set -xg GOPATH $HOME/dev/local/go
-set -xg PATH $PATH $HOME/bin $GOPATH/bin
 set -xg EDITOR "nvim"
-set -xg DIFF $EDITOR
-#set -xg VISUAL $EDITOR
-#set -xg SVN_EDITOR $EDITOR
-set -xg RIPGREP_CONFIG_PATH $HOME/.rgrc
+set -xg RIPGREP_CONFIG_PATH ~/.rgrc
 set -xg DOCKER_BUILDKIT 1
 set -xg GO111MODULE on
 
-set -g fish_user_paths "/usr/local/sbin" $fish_user_paths
 # }}}
 # aliases ----------------------------------------------------------------- {{{
 
 # quick edit
 alias e $EDITOR
-alias t "$EDITOR ~/Documents/Notes/TODO.md"
-alias fc "$EDITOR ~/.config/fish/config.fish"
-alias vc "$EDITOR ~/.config/nvim/init.vim"
-alias kc "$EDITOR ~/.config/kitty/kitty.conf"
-alias tc "$EDITOR ~/.tmux.conf"
-alias bc "$EDITOR ~/.bashrc"
-alias zc "$EDITOR ~/.zshrc"
-alias gc "$EDITOR ~/.gitconfig"
+alias fc "e ~/.config/fish/config.fish"
+alias vc "e ~/.config/nvim/init.vim"
+alias kc "e ~/.config/kitty/kitty.conf"
+alias tc "e ~/.tmux.conf"
+alias bc "e ~/.bashrc"
+alias zc "e ~/.zshrc"
+alias gc "e ~/.gitconfig"
 alias srcf "source ~/.config/fish/config.fish"
-alias git hub
 
 # system
 alias vim nvim
@@ -63,18 +55,10 @@ alias ...... 'cd ../../../../../'
 alias tmux "tmux -2 -u"
 alias tks "tmux kill-server"
 
-# homebrew
-alias bi "brew install"
-alias bs "brew search"
-alias br "brew remove"
-alias bup "brew update"
-alias bug "brew upgrade"
-alias bci "brew cask install"
-
-# Git
-alias g git
+# git
+alias git hub
+alias g hub
 alias d "/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME"
-
 
 # }}}
 # functions --------------------------------------------------------------- {{{
@@ -148,7 +132,7 @@ end
 
 function fserv --description 'fzf -> set current Wiggin server'
     set file (cat ~/.config/wiggin/SERVERS | fzf-tmux --query="$1" --select-1 --exit-0)
-    set -xg WIGGIN_SERVER $file
+    set -xg W_SVR $file
 end
 
 function kl --description 'fzf -> kill -9 <pid>'
