@@ -148,7 +148,7 @@ n() {
 }
 
 staticdata() (
-  ls $WIGGIN_REPO/WigginDB/Data/*.sql | xargs wc -l | sort -k 1 -r | fzf-tmux
+  ls $W_REPO/WigginDB/Data/*.sql | xargs wc -l | sort -k 1 -r | fzf-tmux
 )
 
 # }}}

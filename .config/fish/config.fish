@@ -141,7 +141,7 @@ function kl --description 'fzf -> kill -9 <pid>'
 end
 
 function staticdata --description 'determine size of static-data files'
-    ls $WIGGIN_REPO/WigginDB/Data/*.sql | xargs wc -l | sort -k 1 -r | fzf-tmux
+    ls $W_REPO/WigginDB/Data/*.sql | xargs wc -l | sort -k 1 -r | fzf-tmux
 end
 
 function ext --description 'tarball all files in current directory'
