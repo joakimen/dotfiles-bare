@@ -141,7 +141,7 @@ function kl --description 'fzf -> kill -9 <pid>'
 end
 
 function staticdata --description 'determine size of static-data files'
-    ls $W_REPO/WigginDB/Data/*.sql | xargs wc -l | sort -k 1 -r | fzf-tmux
+    wc -l $W_REPO/WigginDB/Data/*.sql | sort
 end
 
 function ext --description 'tarball all files in current directory'
@@ -155,8 +155,8 @@ end
 
 function docker_log --description 'stream logs from docker engine'
   set pred 'process matches ".*(ocker|vpnkit).*"
-  || (process in {"taskgated-helper", "launchservicesd", "kernel"} 
-  && eventMessage contains[c] "docker")'
+ || (process in {"taskgated-helper", "launchservicesd", "kernel"}
+ && eventMessage contains[c] "docker")'
   log stream --style syslog --level=debug --color=always --predicate "$pred"
 end
 # }}}
