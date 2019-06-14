@@ -23,8 +23,8 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'vim-scripts/VisIncr'
 Plug 'dag/vim-fish'
-Plug 'alok/notational-fzf-vim'
 Plug 'fatih/vim-go'
+Plug 'udalov/kotlin-vim'
 
 " Color schemes
 Plug 'romainl/apprentice'
@@ -182,10 +182,6 @@ tnoremap jk <C-\><C-n>
 " }}}
 " plugin settings --------------------------------------------------------- {{{
 
-" notational velocity
-let g:nv_use_short_pathnames = 1
-let g:nv_search_paths = ['~/Documents/Notes']
-
 " tagbar
 let g:tagbar_sort=0
 let g:tagbar_autofocus=0
@@ -224,9 +220,6 @@ inoremap <silent> <F11> <C-o>:TagbarToggle<CR>
 map /  <Plug>(incsearch-forward)
 map ?  <Plug>(incsearch-backward)
 map g/ <Plug>(incsearch-stay)
-
-" notational fzf
-nnoremap <silent> <Leader>n :NV<CR>
 
 " ssms grid-content to ascii
 nnoremap <silent> <Leader>f :call CreateAsciiTable()<CR>
