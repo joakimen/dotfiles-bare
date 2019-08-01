@@ -1,46 +1,50 @@
 # .zshrc
-# Author: Joakim Engeset <joakim.engeset@gmail.com> 
+# Author: Joakim Engeset <joakim.engeset@gmail.com>
 
-# source stuff ------------------------------------------------------------ {{{
+# environment variables
+export ZSH=~/.oh-my-zsh
+export ZSH_AUTOSUGGEST_USE_ASYNC=1
+export EDITOR="nvim"
+export PATH=~/go/bin:~/bin:$PATH
+export DOCKER_BUILDKIT=1
+export GO111MODULE=on
+export RIPGREP_CONFIG_PATH=~/.rgrc
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.git/*" 2>/dev/null'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
-# prezto
-if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
-  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
-fi
+# zsh theme
+ZSH_THEME="robbyrussell"
 
-# api-tokens etc
-[[ -s ~/.tokens ]] && source ~/.tokens
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# }}}
-# options ----------------------------------------------------------------- {{{
-
-DISABLE_AUTO_TITLE="true"
-DISABLE_CORRECTION="true"
+# DISABLE_UNTRACKED_FILES_DIRTY="true"
+DISABLE_UPDATE_PROMPT="true"
 setopt rmstarsilent
 
-# }}}
-# environment variables --------------------------------------------------- {{{
+# oh-my-zsh plugins
+plugins=(
+  github
+  fast-syntax-highlighting
+  history-substring-search
+  zsh-autosuggestions
+)
 
-export EDITOR="nvim"
-export VISUAL="nvim"
-export PATH=$PATH:~/bin
-export JAVA_HOME=$(/usr/libexec/java_home)
-export DOTFILES=~/code/repos/dotfiles
-export LC_ALL="en_US.UTF-8"
-export LC_CTYPE="en_US.UTF-8"
+# source files
+include() {
+  [[ -f "$1" ]] && source "$1"
+}
 
-# }}}
-# aliases ----------------------------------------------------------------- {{{
+include $ZSH/oh-my-zsh.sh
+include .tokens
+include .wiggin
+include .fzf.zsh
 
 # quick edit
-alias vim=$EDITOR
-alias zc=$EDITOR' ~/.zshrc'
-alias vc=$EDITOR' ~/.vimrc'
-alias tc=$EDITOR' ~/.tmux.conf'
-alias bc=$EDITOR' ~/.bashrc'
-alias fc=$EDITOR' ~/.config/fish/config.fish'
+alias e=$EDITOR
+alias vc="e ~/.config/nvim/init.vim"
+alias kc="e ~/.config/kitty/kitty.conf"
+alias tc="e ~/.tmux.conf"
+alias bc="e ~/.bashrc"
+alias zc="e ~/.zshrc"
+alias gc="e ~/.gitconfig"
 alias srcz="source ~/.zshrc"
 
 # system
@@ -48,95 +52,58 @@ alias pid='ps ax | ag -i '
 alias l="ls -hlAGLF"
 alias ls="ls -AGF"
 alias info='info --vi-keys'
-alias rm="nocorrect rm"
 
 # tmux
 alias tmux="tmux -2 -u"
 alias tks="tmux kill-server"
 
-# homebrew
-alias up="brew update"
-alias ug="brew upgrade"
-alias in="brew install"
-alias cin="brew cask install"
-alias se="brew search"
+# git
+alias g=hub
+alias d="git --git-dir=$HOME/.cfg/ --work-tree=$HOME"
 
-# Git
-alias g='git'
-
-# }}}
-# functions --------------------------------------------------------------- {{{
 
 # determine if in a git-repo
-is_in_git_repo() {
-  git rev-parse HEAD > /dev/null 2>&1
+in_git_repo() {
+  git rev-parse @ &> /dev/null
 }
 
-# cli weather forecast
-weather() {
-  curl -s http://wttr.in/$1 | sed '/New/d;/Follow/d' # fuck promos
+# fzf-wrappers
+fzfk() {
+  file=$(fzf-tmux --query=$2 --select-1 --exit-0 --preview='cat {}') || return
+
+  case "$1" in
+    edit) ${EDITOR:-vim} $file ;;
+    tig) tig $file ;;
+    copy-filepath) echo $(pwd)/$file | pbcopy ;;
+    copy-content) cat $file | pbcopy ;;
+    *) echo "$0: invalid operation $1" ;;
+  esac
 }
 
-# browse chrome-history in tmux (stolen from junegunn)
-c() {
-  local cols sep
-  export cols=$(( COLUMNS / 3 ))
-  export sep='{::}'
+fe()    { fzfk edit $1 } # fuzzy edit
+ftig()  { fzfk tig $1 } # fuzzy tig
+fpath() { fzfk copy-filepath $1 } # fuzzy copy absolute path of file
+fcat()  { fzfk copy-content $1 } # fuzzy copy contents
 
-  cp -f ~/Library/Application\ Support/Google/Chrome/Default/History /tmp/h
-  sqlite3 -separator $sep /tmp/h \
-    "select title, url from urls order by last_visit_time desc" |
-    ruby -ne '
-  cols = ENV["cols"].to_i
-  title, url = $_.split(ENV["sep"])
-  len = 0
-  puts "\x1b[36m" + title.each_char.take_while { |e|
-    if len < cols
-      len += e =~ /\p{Han}|\p{Katakana}|\p{Hiragana}|\p{Hangul}/ ? 2 : 1
-    end
-  }.join + " " * (2 + cols - len) + "\x1b[m" + url' |
-    fzf --ansi --multi --no-hscroll --tiebreak=index |
-    sed 's#.*\(https*://\)#\1#' | xargs open
+# fzf + kill -9
+fk() {
+  pid=$(ps -ef | fzf-tmux | awk '{print $2}')
+  [[ -n $pid ]] && kill -9 $pid
 }
 
-unalias z 2> /dev/null
-z() {
-  [ $# -gt 0 ] && _z "$*" && return
-  cd "$(_z -l 2>&1 | fzf-tmux +s --tac --query "$*" | sed 's/^[0-9,.]* *//')"
-}
-
-# fuzzy-edit
-fe() {
-  local file
-  file=$(fzf-tmux --query="$1" --select-1 --exit-0)
-  [ -n "$file" ] && ${EDITOR:-vim} "$file"
-}
-
-# fuzzy-cd
-fd() {
-  DIR=$(find . -type d -not -path '*/\.*') && cd $DIR
-}
-
-# fuzzy-cat into clipboard
-zcat() {
-  local file
-  file=$(fzf-tmux --query="$1" --select-1 --exit-0)
-  [ -n "$file" ] && cat "$file" | pbcopy
-}
-
-# fzf + git branch checout
-gb() {
-  local branches branch
-  branches=$(git branch --all | grep -v HEAD) &&
-    branch=$(echo "$branches" |
-    fzf-tmux -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
-    git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
+# fzf + git checkout branch
+fb() {
+    in_git_repo || return
+    log_pattern="git log -b {} --pretty=format:'%h %d %s'"
+    branch=$(git for-each-ref --format='%(refname:short)' refs/{heads,remotes}/ | sort | fzf-tmux --preview=$log_pattern)
+    git checkout $branch
 }
 
 # return IP of win10 parallels-instance
 prl_ip() {
   pat='\d\{1,3\}\.\d\{1,3\}\.\d\{1,3\}\.\d\{1,3\}'
   prlctl list "Windows 10" -o ip | grep -o $pat
+
 }
 
 # wait for network connectivity
@@ -144,20 +111,14 @@ n() {
   while true; do
     nc -z google.com 80 -G 1 && break
     echo -n '.'
+    sleep 0.5
   done
 }
 
-staticdata() (
-  ls $W_REPO/WigginDB/Data/*.sql | xargs wc -l | sort -k 1 -r | fzf-tmux
-)
-
-# }}}
-# environment ------------------------------------------------------------- {{{
-
-# automatically attach/create a tmux-session named <username>
-if [[ "$TERM" != "screen-256color" ]]; then
-  tmux attach-session -t "$USER" || tmux new-session -s "$USER"
-  exit
-fi
-
-# }}}
+# stream logs from docker engine
+docker_log() {
+  pred='process matches ".*(ocker|vpnkit).*"
+ || (process in {"taskgated-helper", "launchservicesd", "kernel"}
+ && eventMessage contains[c] "docker")'
+  log stream --style syslog --level=debug --color=always --predicate "$pred"
+}
