@@ -4,10 +4,9 @@
 " =============================================================================
 inoremap jk <Esc>
 let mapleader = ' '
-set shell=/bin/bash\ --login
+set shell=/usr/local/bin/zsh
 
 " plugins ----------------------------------------------------------------- {{{
-
 call plug#begin('~/.vim/plugged')
 
 Plug 'ajh17/VimCompletesMe'
@@ -22,9 +21,10 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'vim-scripts/VisIncr'
-Plug 'dag/vim-fish'
 Plug 'fatih/vim-go'
 Plug 'udalov/kotlin-vim'
+Plug 'w0rp/ale'
+Plug 'itchyny/lightline.vim'
 
 " Color schemes
 Plug 'romainl/apprentice'
@@ -72,16 +72,19 @@ set previewheight=25
 set undofile
 set undodir=/tmp//,.
 set wildignore+=*\\tmp\\*,*.swp,*.zip,*.exe
-set foldmethod=marker
 set foldlevelstart=0
 set cmdheight=2
-set modelines=0
-set autoread
+set modelines=2
+set inccommand=split
 
 " }}}
 " colors ------------------------------------------------------------------ {{{
 
-colorscheme gruvbox
+if exists("$TERMTHEME") && $TERMTHEME== "light"
+  colorscheme seoul256-light
+else
+  colorscheme zenburn
+endif
 
 highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
@@ -102,12 +105,21 @@ cabbrev h vert h
 " }}}
 " keybindings ------------------------------------------------------------- {{{
 
+" json: format buffer with jq
+nnoremap <leader>j :setf json\|%!jq<cr>
+
 " markdown bindings, stolen from junegunn choi
 nnoremap <leader>1 m`yypVr=``
 nnoremap <leader>2 m`yypVr-``
 nnoremap <leader>3 m`^i### <esc>``4l
 nnoremap <leader>4 m`^i#### <esc>``5l
 nnoremap <leader>5 m`^i##### <esc>``6l
+
+" move as expected across wrapped lines
+nnoremap j gj
+nnoremap k gk
+xnoremap j gj
+xnoremap k gk
 
 " window navigation
 nnoremap <C-h> <C-w>h
@@ -134,9 +146,6 @@ nnoremap dg :diffget<CR>
 " Make S-y work like S-d
 nnoremap <S-y> y$
 
-" find help for current word
-nnoremap <Leader>h yiw:h <C-r>+<CR>
-
 " insert-mode paste
 inoremap <C-v> <C-r>+
 
@@ -145,14 +154,6 @@ nnoremap <S-q> <Nop>
 
 " redraw screen when fucked
 nnoremap <silent> U :syntax sync fromstart<cr>:redraw!<CR>
-
-" Add new, empty line above/below
-nnoremap <silent><S-CR> :put!=repeat(nr2char(10), 0)<CR>j
-nnoremap <silent><CR> :put =repeat(nr2char(10), 0)<CR>k
-
-" Edit and source $MYVIMRC
-nnoremap <Leader>v :vs $MYVIMRC<CR>
-nnoremap <Leader>s :so $MYVIMRC<CR>
 
 " Clear last search result
 nnoremap <silent> <leader>l :nohlsearch<CR>
@@ -172,12 +173,20 @@ cnoreabbrev ci] %ci]
 cnoreabbrev ci{ %ci{
 cnoreabbrev ci} %ci}
 
-" navigate out of terminal-mode
+" terminal: navigation
 tnoremap <C-h> <C-\><C-N><C-w>h
 tnoremap <C-j> <C-\><C-N><C-w>j
 tnoremap <C-k> <C-\><C-N><C-w>k
 tnoremap <C-l> <C-\><C-N><C-w>l
+
+" terminal: escape
 tnoremap jk <C-\><C-n>
+tnoremap <Esc> <C-\><C-n>
+tnoremap jk <C-\><C-n>
+
+" terminal: open in split
+nnoremap <silent> <leader>v :vsp term://zsh<CR>
+nnoremap <silent> <leader>s :sp term://zsh<CR>
 
 " }}}
 " plugin settings --------------------------------------------------------- {{{
@@ -186,6 +195,17 @@ tnoremap jk <C-\><C-n>
 let g:tagbar_sort=0
 let g:tagbar_autofocus=0
 
+" lightline
+let g:lightline = {
+      \ 'colorscheme': 'wombat',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ 'component_function': {
+      \   'gitbranch': 'fugitive#head'
+      \ },
+      \ }
 " }}}
 " plugin keybindings ------------------------------------------------------ {{{
 
@@ -195,6 +215,7 @@ let g:signify_vcs_list = ['git']
 " fzf.vim
 nnoremap <silent> <C-f> :FZF<CR>
 nnoremap <silent> <C-g> :Rg<CR>
+nnoremap <silent> <C-e> :History<CR>
 nnoremap <silent> <C-b> :Buffers<CR>
 nnoremap <silent> <C-c> :Colors<CR>
 
@@ -358,7 +379,7 @@ augroup end
 " start terminal-mode in insert-mode
 augroup term_startinsert
   au!
-  au BufWinEnter,WinEnter term://* startinsert
+	autocmd TermOpen,BufWinEnter,BufEnter term://* startinsert
 augroup end
 
 " }}}
@@ -449,6 +470,3 @@ augroup ft_applescript
   au FileType applescript nnoremap <Leader>r :sp term:///usr/bin/env osascript %<CR>
 augroup end
 
-" }}}
-
-" }}}
