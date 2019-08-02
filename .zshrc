@@ -4,13 +4,14 @@
 # environment variables
 export ZSH=~/.oh-my-zsh
 export ZSH_AUTOSUGGEST_USE_ASYNC=1
-export EDITOR="nvim"
+export EDITOR=$([[ -n "$NVIM_LISTEN_ADDRESS" ]] && echo nvr || echo nvim)
 export PATH=~/go/bin:~/bin:$PATH
 export DOCKER_BUILDKIT=1
 export GO111MODULE=on
 export RIPGREP_CONFIG_PATH=~/.rgrc
-export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.git/*" 2>/dev/null'
+export FZF_DEFAULT_COMMAND='fd --type f'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export KITTY_CONFIG_DIRECTORY=~/.config/kitty
 
 # zsh theme
 ZSH_THEME="robbyrussell"
@@ -33,9 +34,9 @@ include() {
 }
 
 include $ZSH/oh-my-zsh.sh
-include .tokens
-include .wiggin
-include .fzf.zsh
+include ~/.tokens
+include ~/.wiggin
+include ~/.fzf.zsh
 
 # quick edit
 alias e=$EDITOR
@@ -52,6 +53,8 @@ alias pid='ps ax | ag -i '
 alias l="ls -hlAGLF"
 alias ls="ls -AGF"
 alias info='info --vi-keys'
+alias day="termtheme_set light"
+alias night="termtheme_set dark"
 
 # tmux
 alias tmux="tmux -2 -u"
@@ -121,4 +124,17 @@ docker_log() {
  || (process in {"taskgated-helper", "launchservicesd", "kernel"}
  && eventMessage contains[c] "docker")'
   log stream --style syslog --level=debug --color=always --predicate "$pred"
+}
+
+# hot reload kitty colors
+termtheme_set() {
+  [[ $1 != (light|dark) ]] && {
+    echo "Usage: $0 light|dark"
+    return 0
+  }
+
+  launchctl setenv TERMTHEME $1 # for current session
+  export TERMTHEME=$1 # for child processes
+
+  kitty @ set-colors $KITTY_CONFIG_DIRECTORY/colors/$TERMTHEME.conf
 }
