@@ -12,13 +12,6 @@
 # }}}
 # environment variables --------------------------------------------------- {{{
 
-set -xg REPO ~/dev/dev.azure.com
-set -xg WYRM_REPO $REPO/Wyrm
-set -xg W_REPO $REPO/Wiggin
-set -xg W_UID aa323
-set -xg W_DB aa323_Wiggin
-set -xg W_SVR 'i2-rotdsql-001'
-
 set -xg EDITOR "nvim"
 set -xg RIPGREP_CONFIG_PATH ~/.rgrc
 set -xg DOCKER_BUILDKIT 1
@@ -80,16 +73,6 @@ function is_in_git_repo --description 'determine if in git repo'
     git rev-parse HEAD > /dev/null 2>&1
 end
 
-function weather --description 'cli weather-forecast'
-    set -q $argv[1]; and echo 'Please specify a location'; and return
-    curl -s http://wttr.in/$argv[1] | sed '/New/d;/Follow/d' # fuck promos
-end
-
-function prl_ip --description 'return IP of win10 parallels-instance'
-    set pat '\d\{1,3\}\.\d\{1,3\}\.\d\{1,3\}\.\d\{1,3\}'
-    prlctl list "Windows 10" -o ip | grep -o $pat
-end
-
 function n --description 'test for network connectivity'
     while true
         nc -z google.com 80 -G 1; and break
@@ -130,18 +113,9 @@ function gb --description 'fzf -> git checkout branch'
     git checkout $branch
 end
 
-function fserv --description 'fzf -> set current Wiggin server'
-    set file (cat ~/.config/wiggin/SERVERS | fzf-tmux --query="$1" --select-1 --exit-0)
-    set -xg W_SVR $file
-end
-
 function kl --description 'fzf -> kill -9 <pid>'
     set pid (ps -ef | fzf-tmux | awk '{print $2}')
     [ -n $pid ]; and kill -9 $pid
-end
-
-function staticdata --description 'determine size of static-data files'
-    wc -l $W_REPO/WigginDB/Data/*.sql | sort
 end
 
 function ext --description 'tarball all files in current directory'
