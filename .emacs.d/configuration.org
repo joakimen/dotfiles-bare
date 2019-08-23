@@ -1,0 +1,328 @@
+#+TITLE: Emacs configuration file
+#+AUTHOR: joakim lindeng engeset
+#+EMAIL: joakim.engeset@gmail.com
+#+OPTIONS: toc:nil num:nil
+
+* Settings
+** UI
+
+   #+begin_src emacs-lisp
+     (tool-bar-mode 0)
+     (menu-bar-mode 0)
+     (scroll-bar-mode -1)
+     (add-to-list 'default-frame-alist '(fullscreen . maximized))
+     (setq inhibit-startup-message t)
+     (setq epa-pinentry-mode 'loopback)
+     (setq-default dired-listing-switches "-alh")
+     (set-frame-font "Iosevka Custom 14" nil t)
+     (set-frame-parameter (selected-frame) 'alpha 96)
+   #+END_SRC
+
+** Insane defaults
+
+   #+BEGIN_SRC emacs-lisp
+     (fset 'yes-or-no-p 'y-or-n-p)
+     (setq gc-cons-threshold 20000000)
+     (setq mac-option-modifier nil)
+     (setq mac-command-modifier 'meta)
+     (setq default-directory "~/")
+     (setq require-final-newline t)
+     (exec-path-from-shell-initialize)
+   #+END_SRC
+
+** Convenience-functions
+
+   #+BEGIN_SRC emacs-lisp
+     (defun reload-configuration ()
+       "evalute literal configuration file"
+       (interactive)
+       (org-babel-load-file "~/.emacs.d/configuration.org"))
+
+     (defun indent-buffer ()
+       "removes trailing whitespace, indents buffer and replaces tabs with spaces"
+       (interactive)
+       (save-excursion
+         (delete-trailing-whitespace)
+         (indent-region (point-min) (point-max) nil)
+         (untabify (point-min) (point-max))))
+
+     (defun describe-at-point ()
+       "Show the documentation of the Elisp function and variable near point.
+                  This checks in turn:
+                  -- for a function name where point is
+                  -- for a variable name where point is
+                  -- for a surrounding function call
+                  "
+       (interactive)
+       (let (sym)
+         ;; sigh, function-at-point is too clever.  we want only the first half.
+         (cond ((setq sym (ignore-errors
+                            (with-syntax-table emacs-lisp-mode-syntax-table
+                              (save-excursion
+                                (or (not (zerop (skip-syntax-backward "_w")))
+                                    (eq (char-syntax (char-after (point))) ?w)
+                                    (eq (char-syntax (char-after (point))) ?_)
+                                    (forward-sexp -1))
+                                (skip-chars-forward "`'")
+                                (let ((obj (read (current-buffer))))
+                                  (and (symbolp obj) (fboundp obj) obj))))))
+                (describe-function sym))
+               ((setq sym (variable-at-point)) (describe-variable sym)
+                )
+               ;; now let it operate fully -- i.e. also check the
+               ;; surrounding sexp for a function call.
+               ((setq sym (function-at-point)) (describe-function sym)))))
+   #+END_SRC
+
+* Package Management
+** Prepare =use-package=-macro responsible for structuring packages
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'use-package-ensure)
+     (setq use-package-always-ensure t)
+   #+END_SRC
+
+   =auto-compile=
+   #+BEGIN_SRC emacs-lisp
+     (use-package auto-compile
+       :config (auto-compile-on-load-mode))
+     (setq load-prefer-newer t)
+   #+END_SRC
+
+* Packages
+** themes
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package color-theme-sanityinc-tomorrow
+       :config
+       (load-theme 'sanityinc-tomorrow-night t))
+   #+END_SRC
+
+** evil
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package evil
+       :config
+       (evil-mode 1)
+
+       ;; normal-mode
+       (define-key evil-normal-state-map (kbd "C-0") 'reload-configuration)
+       (define-key evil-normal-state-map "\C-u" 'evil-scroll-up)
+       (define-key evil-normal-state-map "\C-f" 'find-file)
+       (define-key evil-normal-state-map "\C-b" 'counsel-buffer-or-recentf)
+       (define-key evil-normal-state-map "\C-p" 'counsel-bookmark)
+       (define-key evil-normal-state-map (kbd "C-å") 'evil-window-prev)
+       (define-key evil-normal-state-map (kbd "~") 'evil-window-next)
+       (define-key evil-normal-state-map "K" 'describe-at-point)
+
+       ;; insert-mode
+       (define-key evil-insert-state-map "\M-v" 'evil-paste-after))
+   #+END_SRC
+
+** evil-surround
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package evil-surround
+       :config
+       (global-evil-surround-mode 1))
+   #+END_SRC
+
+** evil-org
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package evil-org
+       :config
+       (add-hook 'org-mode-hook 'evil-org-mode)
+       (add-hook 'evil-org-mode-ook
+                 (lambda () (evil-org-set-key-theme)))
+       (require 'evil-org-agenda)
+       (evil-org-agenda-set-keys))
+   #+END_SRC
+
+** evil-escape
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package evil-escape
+       :config
+       (evil-escape-mode 1)
+       (setq-default evil-escape-delay 0.2))
+   #+END_SRC
+
+** flycheck
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package flycheck
+       :init
+       (add-hook 'after-init-hook 'global-flycheck-mode)
+       :config
+       (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
+       (add-hook 'org-mode-hook #'flycheck-mode)
+
+       )
+   #+END_SRC
+
+** counsel/ivy
+
+   #+BEGIN_SRC emacs-lisp :exports code
+     (use-package counsel
+       :ensure evil
+       :bind
+       ("M-x" . 'counsel-M-x)
+       ("C-s" . 'swiper)
+
+       :config
+       (use-package flx)
+       (use-package smex)
+
+       (ivy-mode 1)
+       (setq ivy-use-virtual-buffers t)
+       (setq ivy-count-format "(%d/%d) ")
+       (setq ivy-initial-inputs-alist nil)
+       (setq ivy-re-builders-alist
+             '((swiper . ivy--regex-plus)
+               (t . ivy--regex-fuzzy))))
+   #+END_SRC
+
+** org-bullets
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package org-bullets
+       :init
+       (add-hook 'org-mode-hook 'org-bullets-mode))
+   #+END_SRC
+
+** org
+   
+   #+BEGIN_SRC emacs-lisp
+     (defun org-file-path (filename)
+       (concat (file-name-as-directory "~/org") filename))
+     (setq org-index-file (org-file-path "index.org"))
+     (setq org-agenda-files (list org-directory))
+
+     (defun open-index-file ()
+       (interactive)
+       (find-file-other-window org-index-file)
+       (outline-show-all)
+       (flycheck-mode -1)
+       (end-of-buffer))
+
+     (setq org-confirm-babel-evaluate nil)
+     (setq org-src-tab-acts-natively t)
+     (setq org-log-done 'time)
+     (setq org-src-fontify-acts-natively t)
+
+     (define-key global-map "\C-ca" 'org-agenda)
+     (define-key global-map "\C-cc" 'counsel-org-capture)
+     (define-key global-map "\C-cl" 'org-store-link)
+     (define-key global-map "\C-ci" 'open-index-file)
+     (org-babel-do-load-languages
+      'org-babel-load-languages
+      '((emacs-lisp . t)
+        (shell . t)))
+
+     (setq org-capture-templates
+           '(("t" "Todo"
+              entry
+              (file+headline org-index-file "Inbox")
+              "* TODO %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")
+
+             ("l" "Link"
+              entry
+              (file+headline org-index-file "Inbox")
+              "* TODO %?\nSCHEDULED: %t\n")))
+
+   #+END_SRC
+
+** paredit
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package paredit)
+   #+END_SRC
+
+** rainbow-delimiters
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package rainbow-delimiters)
+   #+END_SRC
+
+** company
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package company)
+     (add-hook 'after-init-hook 'global-company-mode)
+     (global-set-key (kbd "M--") 'company-complete-common)
+   #+END_SRC
+
+** which-key
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package which-key
+       :config
+       (setq which-key-idle-delay 0.4)
+       (which-key-mode))
+   #+END_SRC
+
+** yasnippet
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package yasnippet
+       :ensure t
+       :init
+       (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+       (yas-global-mode 1)
+       :config
+       )
+
+   #+END_SRC
+
+** ag
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package ag
+       :config
+       (global-set-key (kbd "C-c f") 'counsel-ag)
+       )
+   #+END_SRC
+
+** magit
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package magit
+       :bind
+       ("C-x g" . magit-status)
+
+       :config
+       (use-package evil-magit)
+       (use-package with-editor)
+       (setq magit-push-always-verify nil)
+       (setq git-commit-summary-max-length 50)
+
+       (setq magit-branch-arguments nil
+             ;; use ido to look for branches
+             magit-completing-read-function 'magit-ido-completing-read
+             ;; don't put "origin-" in front of new branch names by default
+             magit-default-tracking-name-function 'magit-default-tracking-name-branch-only
+             magit-push-always-verify nil
+             ;; Get rid of the previous advice to go into fullscreen
+             magit-restore-window-configuration t)
+
+       (add-hook 'with-editor-mode-hook 'evil-insert-state))
+   #+END_SRC
+
+* Languages
+** Lisp
+
+   #+BEGIN_SRC emacs-lisp
+     (setq lispy-mode-hooks
+           '(clojure-mode-hook
+             emacs-lisp-mode-hook
+             lisp-mode-hook
+             scheme-mode-hook))
+
+     (dolist (hook lispy-mode-hooks)
+       (add-hook hook (lambda ()
+                        (setq show-paren-style 'expression)
+                        (paredit-mode)
+                        (rainbow-delimiters-mode))))
+   #+END_SRC
+
