@@ -2,19 +2,23 @@
 # Author: Joakim Engeset <joakim.engeset@gmail.com>
 
 # environment variables
+export DISABLE_AUTO_UPDATE=true
+export DOCKER_BUILDKIT=1
+export EDITOR=$([[ -n "$NVIM_LISTEN_ADDRESS" ]] && echo nvr || echo nvim)
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_DEFAULT_COMMAND='fd --type f --hidden'
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+export GO111MODULE=on
+export KITTY_CONFIG_DIRECTORY=~/.config/kitty
+export MANPAGER="nvim -c 'set ft=man' -"
+export PATH=~/go/bin:~/bin:/usr/local/sbin:$PATH
+export RIPGREP_CONFIG_PATH=~/.rgrc
 export ZSH=~/.oh-my-zsh
 export ZSH_AUTOSUGGEST_USE_ASYNC=1
-export EDITOR=$([[ -n "$NVIM_LISTEN_ADDRESS" ]] && echo nvr || echo nvim)
-export PATH=~/go/bin:~/bin:$PATH
-export DOCKER_BUILDKIT=1
-export GO111MODULE=on
-export RIPGREP_CONFIG_PATH=~/.rgrc
-export FZF_DEFAULT_COMMAND='fd --type f'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export KITTY_CONFIG_DIRECTORY=~/.config/kitty
+export ZSH_DISABLE_COMPFIX=true
 
 # zsh theme
-ZSH_THEME="robbyrussell"
+ZSH_THEME="gnzh"
 
 # DISABLE_UNTRACKED_FILES_DIRTY="true"
 DISABLE_UPDATE_PROMPT="true"
@@ -32,10 +36,12 @@ plugins=(
 include() {
   [[ -f "$1" ]] && source "$1"
 }
+has_bin() {
+  command -v "$1" &>/dev/null
+}
 
 include $ZSH/oh-my-zsh.sh
 include ~/.tokens
-include ~/.wiggin
 include ~/.fzf.zsh
 
 # quick edit
@@ -50,11 +56,24 @@ alias srcz="source ~/.zshrc"
 
 # system
 alias pid='ps ax | ag -i '
-alias l="ls -hlAGLF"
-alias ls="ls -AGF"
 alias info='info --vi-keys'
 alias day="termtheme_set light"
 alias night="termtheme_set dark"
+
+# unalias some oh-my-zsh stuff
+unalias l
+unalias ls
+
+if has_bin exa; then
+  alias l='exa -al'
+  alias ls='exa -a'
+  alias l1='exa -a1'
+  alias tree='exa -aT'
+else
+  alias l='ls -hlGALF'
+  alias ls='ls -GAF'
+  alias l1='ls -1AG'
+fi
 
 # tmux
 alias tmux="tmux -2 -u"
@@ -70,9 +89,18 @@ in_git_repo() {
   git rev-parse @ &> /dev/null
 }
 
+
+
 # fzf-wrappers
 fzfk() {
-  file=$(fzf-tmux --query=$2 --select-1 --exit-0 --preview='cat {}') || return
+  file=$(fzf-tmux \
+    --query=$2 \
+    --select-1 \
+    --exit-0 \
+    --preview='[[ $(file --mime {}) =~ binary ]] && echo "<binary>" ||
+                 (bat --style=numbers --color=always {} ||
+                  cat {}) 2> /dev/null | head -500'
+  ) || return
 
   case "$1" in
     edit) ${EDITOR:-vim} $file ;;
@@ -102,13 +130,6 @@ fb() {
     git checkout $branch
 }
 
-# return IP of win10 parallels-instance
-prl_ip() {
-  pat='\d\{1,3\}\.\d\{1,3\}\.\d\{1,3\}\.\d\{1,3\}'
-  prlctl list "Windows 10" -o ip | grep -o $pat
-
-}
-
 # wait for network connectivity
 n() {
   while true; do
@@ -128,6 +149,10 @@ docker_log() {
 
 # hot reload kitty colors
 termtheme_set() {
+  [[ -n $VIM ]] && {
+    echo "$0: kitty doesn't support remote commands from within neovim"
+    return 0
+  }
   [[ $1 != (light|dark) ]] && {
     echo "Usage: $0 light|dark"
     return 0
@@ -135,6 +160,17 @@ termtheme_set() {
 
   launchctl setenv TERMTHEME $1 # for current session
   export TERMTHEME=$1 # for child processes
-
-  kitty @ set-colors $KITTY_CONFIG_DIRECTORY/colors/$TERMTHEME.conf
+  kitty @ set-colors --all $KITTY_CONFIG_DIRECTORY/colors/$TERMTHEME.conf
 }
+
+# Use fd (https://github.com/sharkdp/fd) instead of the default find
+# command for listing path candidates.
+_fzf_compgen_path() {
+  fd --hidden --follow --exclude ".git" . "$1"
+}
+
+# Use fd to generate the list for directory completion
+_fzf_compgen_dir() {
+  fd --type d --hidden --follow --exclude ".git" . "$1"
+}
+
