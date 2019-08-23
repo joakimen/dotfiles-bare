@@ -9,6 +9,7 @@ set shell=/usr/local/bin/zsh
 " plugins ----------------------------------------------------------------- {{{
 call plug#begin('~/.vim/plugged')
 
+Plug 'justinmk/vim-sneak'
 Plug 'ajh17/VimCompletesMe'
 Plug 'haya14busa/incsearch.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
@@ -61,7 +62,6 @@ set gdefault
 set nobackup
 set noswapfile
 set textwidth=80
-set colorcolumn=80
 set wrap
 set virtualedit=block
 set listchars=tab:▸\ ,
@@ -80,13 +80,11 @@ set inccommand=split
 " }}}
 " colors ------------------------------------------------------------------ {{{
 
-if exists("$TERMTHEME") && $TERMTHEME== "light"
-  colorscheme seoul256-light
-else
-  colorscheme zenburn
-endif
+colorscheme lena
 
-highlight ExtraWhitespace ctermbg=red guibg=red
+"hi normal ctermbg=none
+"hi nontext ctermbg=none
+hi ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
 
 " }}}
@@ -184,9 +182,10 @@ tnoremap jk <C-\><C-n>
 tnoremap <Esc> <C-\><C-n>
 tnoremap jk <C-\><C-n>
 
-" terminal: open in split
-nnoremap <silent> <leader>v :vsp term://zsh<CR>
+" terminal: open in buffer/hsplit/vsplit
+nnoremap <silent> <leader>t :te<CR>
 nnoremap <silent> <leader>s :sp term://zsh<CR>
+nnoremap <silent> <leader>v :vsp term://zsh<CR>
 
 " }}}
 " plugin settings --------------------------------------------------------- {{{
@@ -206,6 +205,11 @@ let g:lightline = {
       \   'gitbranch': 'fugitive#head'
       \ },
       \ }
+" vim-sneak
+let g:sneak#label = 1
+let g:sneak#use_ic_scs = 1
+let g:sneak#absolute_dir = 1
+
 " }}}
 " plugin keybindings ------------------------------------------------------ {{{
 
@@ -217,7 +221,8 @@ nnoremap <silent> <C-f> :FZF<CR>
 nnoremap <silent> <C-g> :Rg<CR>
 nnoremap <silent> <C-e> :History<CR>
 nnoremap <silent> <C-b> :Buffers<CR>
-nnoremap <silent> <C-c> :Colors<CR>
+nnoremap <silent> <Leader>l :Lines<CR>
+nnoremap <silent> <Leader>C :Colors<CR>
 
 " fugitive.vim
 nnoremap gs :Gstatus<CR>
@@ -348,13 +353,18 @@ endfunction
 
 " general {{{
 
-" assume last known position of file
-augroup resume_file_position
+
+augroup general
   au!
+  " assume last known position of file
   au BufReadPost *
     \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
     \ |   exe "normal! g`\""
     \ | endif
+
+  " make autoread behave like expected
+  au FocusGained * :checktime
+
 augroup end
 
 " highlight unwanted whitespace
@@ -469,4 +479,3 @@ augroup ft_applescript
   au FileType applescript nnoremap <F5> :sp term:///usr/bin/env osascript %<CR>
   au FileType applescript nnoremap <Leader>r :sp term:///usr/bin/env osascript %<CR>
 augroup end
-
