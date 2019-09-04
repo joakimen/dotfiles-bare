@@ -16,6 +16,7 @@ export RIPGREP_CONFIG_PATH=~/.rgrc
 export ZSH=~/.oh-my-zsh
 export ZSH_AUTOSUGGEST_USE_ASYNC=1
 export ZSH_DISABLE_COMPFIX=true
+export LC_ALL="en_US.utf-8"
 
 # zsh theme
 ZSH_THEME="gnzh"
@@ -57,8 +58,6 @@ alias srcz="source ~/.zshrc"
 # system
 alias pid='ps ax | ag -i '
 alias info='info --vi-keys'
-alias day="termtheme_set light"
-alias night="termtheme_set dark"
 
 # unalias some oh-my-zsh stuff
 unalias l
@@ -145,22 +144,6 @@ docker_log() {
  || (process in {"taskgated-helper", "launchservicesd", "kernel"}
  && eventMessage contains[c] "docker")'
   log stream --style syslog --level=debug --color=always --predicate "$pred"
-}
-
-# hot reload kitty colors
-termtheme_set() {
-  [[ -n $VIM ]] && {
-    echo "$0: kitty doesn't support remote commands from within neovim"
-    return 0
-  }
-  [[ $1 != (light|dark) ]] && {
-    echo "Usage: $0 light|dark"
-    return 0
-  }
-
-  launchctl setenv TERMTHEME $1 # for current session
-  export TERMTHEME=$1 # for child processes
-  kitty @ set-colors --all $KITTY_CONFIG_DIRECTORY/colors/$TERMTHEME.conf
 }
 
 # Use fd (https://github.com/sharkdp/fd) instead of the default find
