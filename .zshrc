@@ -80,7 +80,7 @@ alias tks="tmux kill-server"
 
 # git
 alias g=hub
-alias d="git --git-dir=$HOME/.cfg/ --work-tree=$HOME"
+alias d="git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
 
 
 # determine if in a git-repo
