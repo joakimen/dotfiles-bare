@@ -2,7 +2,7 @@
 " init.vim
 " Author: Joakim Engeset <joakim.engeset@gmail.com>
 " =============================================================================
-inoremap jk <Esc>
+inoremap fd <Esc>
 let mapleader = ' '
 set shell=/usr/local/bin/zsh
 
@@ -36,6 +36,7 @@ Plug 'morhetz/gruvbox'
 Plug 'sickill/vim-monokai'
 Plug 'tomasr/molokai'
 Plug 'junegunn/seoul256.vim'
+Plug 'krystah/lena.vim'
 
 call plug#end()
 
@@ -178,9 +179,9 @@ tnoremap <C-k> <C-\><C-N><C-w>k
 tnoremap <C-l> <C-\><C-N><C-w>l
 
 " terminal: escape
-tnoremap jk <C-\><C-n>
+tnoremap fd <C-\><C-n>
 tnoremap <Esc> <C-\><C-n>
-tnoremap jk <C-\><C-n>
+tnoremap fd <C-\><C-n>
 
 " terminal: open in buffer/hsplit/vsplit
 nnoremap <silent> <leader>t :te<CR>
