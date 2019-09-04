@@ -14,7 +14,7 @@
      (setq inhibit-startup-message t)
      (setq epa-pinentry-mode 'loopback)
      (setq-default dired-listing-switches "-alh")
-     (set-frame-font "Iosevka Custom 14" nil t)
+     (set-frame-font "Iosevka Custom 13" nil t)
      (set-frame-parameter (selected-frame) 'alpha 96)
    #+END_SRC
 
@@ -27,7 +27,7 @@
      (setq mac-command-modifier 'meta)
      (setq default-directory "~/")
      (setq require-final-newline t)
-     (exec-path-from-shell-initialize)
+     (setq-default tab-width 2)
    #+END_SRC
 
 ** Convenience-functions
@@ -159,13 +159,13 @@
        (add-hook 'org-mode-hook #'flycheck-mode)
 
        )
+
    #+END_SRC
 
 ** counsel/ivy
 
-   #+BEGIN_SRC emacs-lisp :exports code
+   #+BEGIN_SRC emacs-lisp
      (use-package counsel
-       :ensure evil
        :bind
        ("M-x" . 'counsel-M-x)
        ("C-s" . 'swiper)
@@ -192,7 +192,7 @@
    #+END_SRC
 
 ** org
-   
+
    #+BEGIN_SRC emacs-lisp
      (defun org-file-path (filename)
        (concat (file-name-as-directory "~/org") filename))
@@ -210,6 +210,8 @@
      (setq org-src-tab-acts-natively t)
      (setq org-log-done 'time)
      (setq org-src-fontify-acts-natively t)
+     (add-hook 'org-capture-mode-hook 'evil-insert-state)
+     (add-hook 'org-log-buffer-setup-hook 'evil-insert-state)
 
      (define-key global-map "\C-ca" 'org-agenda)
      (define-key global-map "\C-cc" 'counsel-org-capture)
@@ -224,7 +226,11 @@
            '(("t" "Todo"
               entry
               (file+headline org-index-file "Inbox")
-              "* TODO %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")
+              "* TODO %?\nSCHEDULED: %t\n")
+             ("n" "Note"
+              entry
+              (file+headline org-index-file "Notes")
+              "* %?\nLOGGED: %t\n")
 
              ("l" "Link"
               entry
@@ -309,6 +315,13 @@
        (add-hook 'with-editor-mode-hook 'evil-insert-state))
    #+END_SRC
 
+** exec-path-from-shell
+   #+BEGIN_SRC emacs-lisp
+     (use-package exec-path-from-shell
+       :config
+       (exec-path-from-shell-initialize))
+   #+END_SRC
+
 * Languages
 ** Lisp
 
@@ -325,4 +338,3 @@
                         (paredit-mode)
                         (rainbow-delimiters-mode))))
    #+END_SRC
-
