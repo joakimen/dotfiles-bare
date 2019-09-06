@@ -1,5 +1,5 @@
 #+TITLE: Emacs configuration file
-#+AUTHOR: joakim lindeng engeset
+#+AUTHOR: Joakim Lindeng Engeset
 #+EMAIL: joakim.engeset@gmail.com
 #+OPTIONS: toc:nil num:nil
 
@@ -28,6 +28,15 @@
      (setq default-directory "~/")
      (setq require-final-newline t)
      (setq-default tab-width 2)
+     (setq backup-directory-alist
+           `((".*" . ,temporary-file-directory)))
+     (setq auto-save-file-name-transforms
+           `((".*" ,temporary-file-directory t)))
+     (save-place-mode t)
+     (global-set-key (kbd "C-x k") 'kill-buffer-no-prompt)
+     (global-set-key (kbd "C-w") 'backward-kill-word)
+
+
    #+END_SRC
 
 ** Convenience-functions
@@ -46,13 +55,18 @@
          (indent-region (point-min) (point-max) nil)
          (untabify (point-min) (point-max))))
 
+     (defun kill-buffer-no-prompt ()
+       (interactive)
+       (kill-buffer (current-buffer)))
+
      (defun describe-at-point ()
        "Show the documentation of the Elisp function and variable near point.
-                  This checks in turn:
-                  -- for a function name where point is
-                  -- for a variable name where point is
-                  -- for a surrounding function call
-                  "
+
+        This checks in turn:
+        -- for a function name where point is
+        -- for a variable name where point is
+        -- for a surrounding function call
+        "
        (interactive)
        (let (sym)
          ;; sigh, function-at-point is too clever.  we want only the first half.
@@ -72,6 +86,23 @@
                ;; now let it operate fully -- i.e. also check the
                ;; surrounding sexp for a function call.
                ((setq sym (function-at-point)) (describe-function sym)))))
+
+     (defun split-below-and-switch ()
+       "Split the window horizontally, then switch to the new pane."
+       (interactive)
+       (split-window-below)
+       (balance-windows)
+       (other-window 1))
+
+     (defun split-right-and-switch ()
+       "Split the window vertically, then switch to the new pane."
+       (interactive)
+       (split-window-right)
+       (balance-windows)
+       (other-window 1))
+
+     (global-set-key (kbd "C-x 2") 'split-below-and-switch)
+     (global-set-key (kbd "C-x 3") 'split-right-and-switch)
    #+END_SRC
 
 * Package Management
@@ -114,6 +145,7 @@
        (define-key evil-normal-state-map (kbd "C-å") 'evil-window-prev)
        (define-key evil-normal-state-map (kbd "~") 'evil-window-next)
        (define-key evil-normal-state-map "K" 'describe-at-point)
+       (define-key evil-normal-state-map (kbd "<DEL>") 'org-agenda)
 
        ;; insert-mode
        (define-key evil-insert-state-map "\M-v" 'evil-paste-after))
@@ -191,13 +223,15 @@
        (add-hook 'org-mode-hook 'org-bullets-mode))
    #+END_SRC
 
-** org
+** org-mode
 
    #+BEGIN_SRC emacs-lisp
      (defun org-file-path (filename)
        (concat (file-name-as-directory "~/org") filename))
      (setq org-index-file (org-file-path "index.org"))
-     (setq org-agenda-files (list org-directory))
+     (setq org-agenda-files (quote ("~/org"
+                                    "~/org/client-1"
+                                    "~/org/client-2")))
 
      (defun open-index-file ()
        (interactive)
@@ -210,6 +244,8 @@
      (setq org-src-tab-acts-natively t)
      (setq org-log-done 'time)
      (setq org-src-fontify-acts-natively t)
+     (setq org-todo-keywords
+           '((sequence "TODO" "NEXT" "|" "DONE")))
      (add-hook 'org-capture-mode-hook 'evil-insert-state)
      (add-hook 'org-log-buffer-setup-hook 'evil-insert-state)
 
@@ -223,20 +259,12 @@
         (shell . t)))
 
      (setq org-capture-templates
-           '(("t" "Todo"
-              entry
-              (file+headline org-index-file "Inbox")
-              "* TODO %?\nSCHEDULED: %t\n")
-             ("n" "Note"
-              entry
-              (file+headline org-index-file "Notes")
-              "* %?\nLOGGED: %t\n")
+           '(("t" "Task" entry (file+headline org-index-file "Tasks") "* TODO %?\nFrom: %a")
+             ("n" "Note" entry (file+headline org-index-file "Notes") "* %?\nFrom: %a")))
 
-             ("l" "Link"
-              entry
-              (file+headline org-index-file "Inbox")
-              "* TODO %?\nSCHEDULED: %t\n")))
-
+     (setq org-refile-targets (quote ((nil :maxlevel . 1)
+                                      (org-agenda-files :maxlevel . 1))))
+     (setq org-outline-path-complete-in-steps nil)
    #+END_SRC
 
 ** paredit
