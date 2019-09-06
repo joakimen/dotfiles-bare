@@ -229,7 +229,7 @@
      (setq org-directory "~/Dropbox/org")
      (defun org-file-path (filename)
        (concat (file-name-as-directory "~/Dropbox/org") filename))
-     (setq org-index-file (org-file-path "index.org"))
+     (setq org-index-file (org-file-path "refile.org"))
      (setq org-agenda-files (quote ("~/Dropbox/org"
                                     "~/org/client-1"
                                     "~/org/client-2")))
