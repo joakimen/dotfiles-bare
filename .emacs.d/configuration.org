@@ -226,13 +226,16 @@
 ** org-mode
 
    #+BEGIN_SRC emacs-lisp
+     (setq org-directory "~/Dropbox/org")
      (defun org-file-path (filename)
-       (concat (file-name-as-directory "~/org") filename))
+       (concat (file-name-as-directory "~/Dropbox/org") filename))
      (setq org-index-file (org-file-path "index.org"))
-     (setq org-agenda-files (quote ("~/org"
+     (setq org-agenda-files (quote ("~/Dropbox/org"
                                     "~/org/client-1"
                                     "~/org/client-2")))
 
+     (setq org-archive-location
+           (concat (org-file-path "archive.org") "::* From %s"))
      (defun open-index-file ()
        (interactive)
        (find-file-other-window org-index-file)
