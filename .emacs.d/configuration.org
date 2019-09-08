@@ -33,9 +33,10 @@
      (setq auto-save-file-name-transforms
            `((".*" ,temporary-file-directory t)))
      (save-place-mode t)
-     (global-set-key (kbd "C-x k") 'kill-buffer-no-prompt)
      (global-set-key (kbd "C-w") 'backward-kill-word)
-
+     (setq user-full-name "Joakim Lindeng Engeset")
+     (setq user-mail-address "hello@harryrschwartz.com")
+     (setq help-window-select t)
 
    #+END_SRC
 
@@ -54,10 +55,6 @@
          (delete-trailing-whitespace)
          (indent-region (point-min) (point-max) nil)
          (untabify (point-min) (point-max))))
-
-     (defun kill-buffer-no-prompt ()
-       (interactive)
-       (kill-buffer (current-buffer)))
 
      (defun describe-at-point ()
        "Show the documentation of the Elisp function and variable near point.
@@ -87,22 +84,31 @@
                ;; surrounding sexp for a function call.
                ((setq sym (function-at-point)) (describe-function sym)))))
 
-     (defun split-below-and-switch ()
+     (defun jle/kill-buffer ()
+       (interactive)
+       (kill-buffer-and-window (current-buffer)))
+
+     (defun jle/split-window-below ()
        "Split the window horizontally, then switch to the new pane."
        (interactive)
        (split-window-below)
        (balance-windows)
        (other-window 1))
 
-     (defun split-right-and-switch ()
+     (defun jle/split-window-right ()
        "Split the window vertically, then switch to the new pane."
        (interactive)
        (split-window-right)
        (balance-windows)
        (other-window 1))
 
-     (global-set-key (kbd "C-x 2") 'split-below-and-switch)
-     (global-set-key (kbd "C-x 3") 'split-right-and-switch)
+     (defun jle/list-buffers ()
+       "Split the window vertically, then switch to the new pane."
+       (interactive)
+       (list-buffers)
+       (balance-windows)
+       (other-window 1))
+
    #+END_SRC
 
 * Package Management
@@ -129,6 +135,29 @@
        (load-theme 'sanityinc-tomorrow-night t))
    #+END_SRC
 
+** evil-leader
+	 
+   #+BEGIN_SRC emacs-lisp
+     (use-package evil-leader
+       :config
+       (global-evil-leader-mode)
+       (evil-leader/set-leader "<SPC>")
+       (evil-leader/set-key
+         "k" 'jle/kill-buffer
+         "h" 'jle/split-window-below
+         "v" 'jle/split-window-right
+         "b" 'jle/list-buffers) ; for buffer cleanup
+         "r" 'reload-configuration
+         "g" 'magit-status
+       )
+   #+END_SRC
+	 
+** evil-magit
+	 
+#+BEGIN_SRC emacs-lisp
+(use-package evil-magit)
+#+END_SRC
+
 ** evil
 
    #+BEGIN_SRC emacs-lisp
@@ -137,7 +166,7 @@
        (evil-mode 1)
 
        ;; normal-mode
-       (define-key evil-normal-state-map (kbd "C-0") 'reload-configuration)
+       (define-key evil-normal-state-map (kbd "C-0") 'indent-buffer)
        (define-key evil-normal-state-map "\C-u" 'evil-scroll-up)
        (define-key evil-normal-state-map "\C-f" 'find-file)
        (define-key evil-normal-state-map "\C-b" 'counsel-buffer-or-recentf)
