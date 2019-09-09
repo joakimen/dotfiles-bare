@@ -14,7 +14,7 @@
      (setq inhibit-startup-message t)
      (setq epa-pinentry-mode 'loopback)
      (setq-default dired-listing-switches "-alh")
-     (set-frame-font "Iosevka Custom 13" nil t)
+     (set-frame-font "Iosevka Custom 14" nil t)
      (set-frame-parameter (selected-frame) 'alpha 96)
    #+END_SRC
 
@@ -136,7 +136,7 @@
    #+END_SRC
 
 ** evil-leader
-	 
+
    #+BEGIN_SRC emacs-lisp
      (use-package evil-leader
        :config
@@ -146,17 +146,17 @@
          "k" 'jle/kill-buffer
          "h" 'jle/split-window-below
          "v" 'jle/split-window-right
-         "b" 'jle/list-buffers) ; for buffer cleanup
+         "b" 'jle/list-buffers
          "r" 'reload-configuration
-         "g" 'magit-status
+         "g" 'magit-status) ; for buffer cleanup
        )
    #+END_SRC
-	 
+
 ** evil-magit
-	 
-#+BEGIN_SRC emacs-lisp
-(use-package evil-magit)
-#+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package evil-magit)
+   #+END_SRC
 
 ** evil
 
