@@ -14,15 +14,15 @@
      (setq inhibit-startup-message t)
      (setq epa-pinentry-mode 'loopback)
      (setq-default dired-listing-switches "-alh")
-     (set-frame-font "Iosevka Custom 14" nil t)
+     (set-frame-font "Iosevka Custom 15" nil t)
      (set-frame-parameter (selected-frame) 'alpha 96)
    #+END_SRC
-
 ** Insane defaults
 
    #+BEGIN_SRC emacs-lisp
      (fset 'yes-or-no-p 'y-or-n-p)
      (setq gc-cons-threshold 20000000)
+
      (setq mac-option-modifier nil)
      (setq mac-command-modifier 'meta)
      (setq default-directory "~/")
@@ -35,8 +35,9 @@
      (save-place-mode t)
      (global-set-key (kbd "C-w") 'backward-kill-word)
      (setq user-full-name "Joakim Lindeng Engeset")
-     (setq user-mail-address "hello@harryrschwartz.com")
+     (setq user-mail-address "joakim.engeset@gmail.com")
      (setq help-window-select t)
+     (setq ns-pop-up-frames nil)
 
    #+END_SRC
 
@@ -51,6 +52,7 @@
      (defun indent-buffer ()
        "removes trailing whitespace, indents buffer and replaces tabs with spaces"
        (interactive)
+
        (save-excursion
          (delete-trailing-whitespace)
          (indent-region (point-min) (point-max) nil)
@@ -86,7 +88,7 @@
 
      (defun jle/kill-buffer ()
        (interactive)
-       (kill-buffer-and-window (current-buffer)))
+       (kill-buffer (current-buffer)))
 
      (defun jle/split-window-below ()
        "Split the window horizontally, then switch to the new pane."
@@ -109,6 +111,24 @@
        (balance-windows)
        (other-window 1))
 
+     (defun jle/open-scratch ()
+       (interactive)
+       (switch-to-buffer (get-buffer-create "*scratch*")))
+
+     (defun jle/find-file ()
+       (interactive)
+       (call-interactively
+        (if (projectile-project-p)
+            #'projectile-find-file
+          #'find-file)))
+
+     (defun jle/org-capture-task ()
+       (interactive)
+       (org-capture nil "t"))
+
+     (defun jle/org-agenda-todolist ()
+       (interactive)
+       (org-agenda nil "t"))
    #+END_SRC
 
 * Package Management
@@ -127,14 +147,6 @@
    #+END_SRC
 
 * Packages
-** themes
-
-   #+BEGIN_SRC emacs-lisp
-     (use-package color-theme-sanityinc-tomorrow
-       :config
-       (load-theme 'sanityinc-tomorrow-night t))
-   #+END_SRC
-
 ** evil-leader
 
    #+BEGIN_SRC emacs-lisp
@@ -143,11 +155,13 @@
        (global-evil-leader-mode)
        (evil-leader/set-leader "<SPC>")
        (evil-leader/set-key
-         "k" 'jle/kill-buffer
+         "d" 'jle/kill-buffer
+         "D" 'kill-buffer-and-window
          "h" 'jle/split-window-below
          "v" 'jle/split-window-right
          "b" 'jle/list-buffers
          "r" 'reload-configuration
+         "w" 'save-buffer
          "g" 'magit-status) ; for buffer cleanup
        )
    #+END_SRC
@@ -168,16 +182,22 @@
        ;; normal-mode
        (define-key evil-normal-state-map (kbd "C-0") 'indent-buffer)
        (define-key evil-normal-state-map "\C-u" 'evil-scroll-up)
-       (define-key evil-normal-state-map "\C-f" 'find-file)
+       (define-key evil-normal-state-map "\C-f" 'jle/find-file)
+       (define-key evil-normal-state-map "\C-e" 'counsel-cd)
        (define-key evil-normal-state-map "\C-b" 'counsel-buffer-or-recentf)
-       (define-key evil-normal-state-map "\C-p" 'counsel-bookmark)
        (define-key evil-normal-state-map (kbd "C-å") 'evil-window-prev)
        (define-key evil-normal-state-map (kbd "~") 'evil-window-next)
        (define-key evil-normal-state-map "K" 'describe-at-point)
-       (define-key evil-normal-state-map (kbd "<DEL>") 'org-agenda)
+       (define-key evil-normal-state-map (kbd "<C-S-backspace>") 'jle/open-scratch)
+       (define-key evil-normal-state-map (kbd "<S-backspace>") 'jle/org-agenda-todolist)
+       (define-key evil-normal-state-map (kbd "<backspace>") 'jle/org-capture-task)
 
        ;; insert-mode
-       (define-key evil-insert-state-map "\M-v" 'evil-paste-after))
+       (define-key evil-insert-state-map "\M-v" 'evil-paste-after)
+       (define-key evil-insert-state-map (kbd "C-0") 'indent-buffer)
+
+       ;; visual-mode
+       (define-key evil-visual-state-map "\C-e" 'eval-region))
    #+END_SRC
 
 ** evil-surround
@@ -278,8 +298,10 @@
      (setq org-src-fontify-acts-natively t)
      (setq org-todo-keywords
            '((sequence "TODO" "NEXT" "|" "DONE")))
+
      (add-hook 'org-capture-mode-hook 'evil-insert-state)
      (add-hook 'org-log-buffer-setup-hook 'evil-insert-state)
+     (add-hook 'text-mode-hook 'auto-fill-mode)
 
      (define-key global-map "\C-ca" 'org-agenda)
      (define-key global-map "\C-cc" 'counsel-org-capture)
@@ -291,12 +313,14 @@
         (shell . t)))
 
      (setq org-capture-templates
-           '(("t" "Task" entry (file+headline org-index-file "Tasks") "* TODO %?\nFrom: %a")
+           '(("t" "Task" entry (file+headline org-index-file "Tasks") "* TODO %?")
+             ("r" "Read" entry (file+headline org-index-file "Tasks") "* TODO read %? %c\n")
              ("n" "Note" entry (file+headline org-index-file "Notes") "* %?\nFrom: %a")))
 
-     (setq org-refile-targets (quote ((nil :maxlevel . 1)
-                                      (org-agenda-files :maxlevel . 1))))
+     (setq org-refile-targets (quote ((nil :maxlevel . 2)
+                                      (org-agenda-files :maxlevel . 2))))
      (setq org-outline-path-complete-in-steps nil)
+
    #+END_SRC
 
 ** paredit
@@ -364,17 +388,26 @@
        (setq git-commit-summary-max-length 50)
 
        (setq magit-branch-arguments nil
-             ;; use ido to look for branches
-             magit-completing-read-function 'magit-ido-completing-read
              ;; don't put "origin-" in front of new branch names by default
              magit-default-tracking-name-function 'magit-default-tracking-name-branch-only
              magit-push-always-verify nil
              ;; Get rid of the previous advice to go into fullscreen
              magit-restore-window-configuration t)
 
+       (setq magit-pull-or-fetch t)
+       (define-key magit-mode-map "f" 'magit-pull) ; was magit-fetch
+       (define-key magit-mode-map "F" nil)         ; was magit-pull
+       (with-eval-after-load 'magit-mode
+         (define-key magit-mode-map (kbd "<Backspace>") nil))
+
        (add-hook 'with-editor-mode-hook 'evil-insert-state))
    #+END_SRC
 
+** forge
+   #+BEGIN_SRC emacs-lisp
+     (use-package forge
+       :after magit)
+   #+END_SRC
 ** exec-path-from-shell
    #+BEGIN_SRC emacs-lisp
      (use-package exec-path-from-shell
@@ -382,6 +415,58 @@
        (exec-path-from-shell-initialize))
    #+END_SRC
 
+** projectile
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package projectile
+       :bind
+       ("C-c v" . 'projectile-ag)
+
+       :config
+       (projectile-global-mode)
+
+       (define-key evil-normal-state-map (kbd "C-p") 'projectile-switch-project)
+       (evil-define-key 'motion ag-mode-map (kbd "C-p") 'projectile-switch-project)
+       (evil-define-key 'motion rspec-mode-map (kbd "C-p") 'projectile-switch-project)
+
+       (setq projectile-completion-system 'ivy)
+       (setq projectile-switch-project-action 'projectile-dired)
+       (setq projectile-require-project-root nil)
+       )
+   #+END_SRC
+
+** markdown-mode
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package markdown-mode
+       :ensure t
+       :commands (markdown-mode gfm-mode)
+       :mode (("README\\.md\\'" . gfm-mode)
+              ("\\.md\\'" . markdown-mode)
+              ("\\.markdown\\'" . markdown-mode))
+       :init (setq markdown-command "multimarkdown"))
+   #+END_SRC
+
+** minions
+   #+BEGIN_SRC emacs-lisp
+     (use-package minions
+       :config
+       (setq minions-mode-line-lighter ""
+             minions-mode-line-delimiters '("" . ""))
+       (minions-mode 1))
+   #+END_SRC
+** doom-themes
+   #+BEGIN_SRC emacs-lisp
+     (use-package doom-themes
+       :config
+       (setq doom-themes-enable-bold t)   ; if nil, bold is universally disabled
+       (setq doom-themes-enable-italic t) ; if nil, italics is universally disabled
+       (load-theme 'doom-molokai t)
+       (doom-themes-org-config)
+       (doom-themes-visual-bell-config) ; Enable flashing mode-line on errors
+       )
+
+   #+END_SRC
 * Languages
 ** Lisp
 

@@ -9,7 +9,6 @@ set shell=/usr/local/bin/zsh
 " plugins ----------------------------------------------------------------- {{{
 call plug#begin('~/.vim/plugged')
 
-Plug 'justinmk/vim-sneak'
 Plug 'ajh17/VimCompletesMe'
 Plug 'haya14busa/incsearch.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
@@ -26,6 +25,7 @@ Plug 'fatih/vim-go'
 Plug 'udalov/kotlin-vim'
 Plug 'w0rp/ale'
 Plug 'itchyny/lightline.vim'
+Plug 'posva/vim-vue'
 
 " Color schemes
 Plug 'romainl/apprentice'
@@ -81,11 +81,12 @@ set inccommand=split
 " }}}
 " colors ------------------------------------------------------------------ {{{
 
-colorscheme lena
+" colorscheme seoul256-light
 
 "hi normal ctermbg=none
 "hi nontext ctermbg=none
 hi ExtraWhitespace ctermbg=red guibg=red
+hi Search cterm=NONE ctermfg=lightgrey ctermbg=blue
 match ExtraWhitespace /\s\+$/
 
 " }}}
@@ -106,6 +107,9 @@ cabbrev h vert h
 
 " json: format buffer with jq
 nnoremap <leader>j :setf json\|%!jq<cr>
+
+" map search to same key used on US layouts
+nnoremap - /
 
 " markdown bindings, stolen from junegunn choi
 nnoremap <leader>1 m`yypVr=``
@@ -206,10 +210,6 @@ let g:lightline = {
       \   'gitbranch': 'fugitive#head'
       \ },
       \ }
-" vim-sneak
-let g:sneak#label = 1
-let g:sneak#use_ic_scs = 1
-let g:sneak#absolute_dir = 1
 
 " }}}
 " plugin keybindings ------------------------------------------------------ {{{
@@ -222,8 +222,8 @@ nnoremap <silent> <C-f> :FZF<CR>
 nnoremap <silent> <C-g> :Rg<CR>
 nnoremap <silent> <C-e> :History<CR>
 nnoremap <silent> <C-b> :Buffers<CR>
-nnoremap <silent> <Leader>l :Lines<CR>
 nnoremap <silent> <Leader>C :Colors<CR>
+nnoremap <silent> <C-s> :Lines<CR>
 
 " fugitive.vim
 nnoremap gs :Gstatus<CR>
@@ -479,4 +479,9 @@ augroup ft_applescript
   au!
   au FileType applescript nnoremap <F5> :sp term:///usr/bin/env osascript %<CR>
   au FileType applescript nnoremap <Leader>r :sp term:///usr/bin/env osascript %<CR>
+augroup end
+
+augroup ft_gitconfig
+	au!
+	au FileType gitconfig set noexpandtab
 augroup end

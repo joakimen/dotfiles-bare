@@ -1,45 +1,61 @@
 [user]
-    name = Joakim Engeset
-    email = joakim.engeset@gmail.com
+	name = Joakim L. Engeset
+	email = joakim.engeset@drift.oslo.kommune.no
 [core]
-    autocrlf = input
-    editor = nvim
+	autocrlf = input
+	editor = nvim
 [diff]
-    tool = vimdiff
+	tool = vimdiff
 [difftool]
-    prompt = false
-    trustExitCode = true
+	prompt = false
+	trustExitCode = true
 [difftool "vimdiff"]
-    cmd = nvim -d $LOCAL $BASE
+	cmd = nvim -d $LOCAL $BASE
 [merge]
-    tool = vimmerge
+	tool = vimmerge
 [mergetool]
-    prompt = false
+	prompt = false
 [mergetool "vimmerge"]
-    cmd = nvim -d $BASE $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+	cmd = nvim -d $BASE $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
 [alias]
-    a = add
-    b = branch
-    c = commit
-    cm = commit -m
-    co = checkout
-    cv = commit --verbose
-    d = difftool
-    ds = difftool --staged
-    df = diff
-    l = log --graph --decorate --oneline
-    ll = log --name-status --graph
-    ls = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-    ld = ls-files -d
-    lm = ls-files -m
-    pl = pull
-    ps = push
-    s = status
-    ss = status --short
-    untracked = ls-files --others --exclude-standard
+	a = add
+	b = branch
+	c = commit
+	cm = commit -m
+	co = checkout
+	cv = commit --verbose
+	d = difftool
+	ds = difftool --staged
+	df = diff
+	l = log --graph --decorate --oneline
+	ll = log --name-status --graph
+	ls = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	ld = ls-files -d
+	lm = ls-files -m
+	m = merge
+	pl = pull
+	ps = push
+	f = fetch
+	fp = fetch --prune
+	s = status
+	ss = status --short
+	untracked = ls-files --others --exclude-standard
+	se = secret
+	z = stash
+	zl = stash list
+	zp = stash pop
+	zd = stash drop
 [web]
-    browser = open
+	browser = open
 [credential]
 	helper = store
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
+[hub]
+	host = github.oslo.kommune.no
+[diff "sopsdiffer"]
+	textconv = sops -d
+[push]
+	default = current
+[pull]
+	default = current

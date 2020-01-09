@@ -19,7 +19,7 @@ export ZSH_DISABLE_COMPFIX=true
 export LC_ALL="en_US.utf-8"
 
 # zsh theme
-ZSH_THEME="gnzh"
+ZSH_THEME="robbyrussell"
 
 # DISABLE_UNTRACKED_FILES_DIRTY="true"
 DISABLE_UPDATE_PROMPT="true"
@@ -44,6 +44,7 @@ has_bin() {
 include $ZSH/oh-my-zsh.sh
 include ~/.tokens
 include ~/.fzf.zsh
+include ~/.ok.zsh
 
 # quick edit
 alias e=$EDITOR
@@ -54,6 +55,10 @@ alias bc="e ~/.bashrc"
 alias zc="e ~/.zshrc"
 alias gc="e ~/.gitconfig"
 alias srcz="source ~/.zshrc"
+alias oc="e ~/.ok.zsh"
+alias k=kubectl
+alias kgp="kubectl get pods"
+alias kx=kubectx
 
 # system
 alias pid='ps ax | ag -i '
@@ -81,7 +86,15 @@ alias tks="tmux kill-server"
 # git
 alias g=hub
 alias d="git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
+alias prlist="g pr list -f \"%t%n%U%n%n\""
+alias prcopy="prlist | pbcopy"
+alias gfs="git flow feature start"
+alias gff="git flow feature finish"
+alias gpr="git pull-request"
 
+# maven
+alias mgs="mvn generate-sources"
+alias mci="mvn clean install"
 
 # determine if in a git-repo
 in_git_repo() {
@@ -115,18 +128,35 @@ ftig()  { fzfk tig $1 } # fuzzy tig
 fpath() { fzfk copy-filepath $1 } # fuzzy copy absolute path of file
 fcat()  { fzfk copy-content $1 } # fuzzy copy contents
 
+# fuzzy cd (fzf + fd -t d)
+zd() {
+  file=$(fd -t d | fzf-tmux --preview="ls -1 {}/") || return
+  cd "$file"
+}
+
 # fzf + kill -9
 fk() {
   pid=$(ps -ef | fzf-tmux | awk '{print $2}')
   [[ -n $pid ]] && kill -9 $pid
 }
 
+# list branches i care about
+branches(){
+  git for-each-ref --format='%(refname:short)' refs/{heads,remotes}/ \
+    | rg -v demo | rg -v HEAD | rg -v origin/master | rg -v origin/develop
+}
+
 # fzf + git checkout branch
 fb() {
     in_git_repo || return
     log_pattern="git log -b {} --pretty=format:'%h %d %s'"
-    branch=$(git for-each-ref --format='%(refname:short)' refs/{heads,remotes}/ | sort | fzf-tmux --preview=$log_pattern)
+    branch=$(branches | sort | fzf-tmux --preview=$log_pattern)
     git checkout $branch
+}
+
+# open rg-results in editor
+erg() {
+  $EDITOR $(rg -l $1)
 }
 
 # wait for network connectivity
@@ -157,3 +187,28 @@ _fzf_compgen_dir() {
   fd --type d --hidden --follow --exclude ".git" . "$1"
 }
 
+emacs() {
+  open -a Emacs $1
+}
+
+lpass_copy_password() {
+  # add fzf-filtering of accounts here later
+  lpass show $1 --password --clip
+}
+
+# git: delete pruned branches
+gdpb() {
+  git branch -vv | rg origin | rg ": gone]" | awk '{print $1}' | xargs git branch -d
+}
+
+# fzf+git: checkout and track remote branch
+review() {
+    in_git_repo || return
+    log_pattern="git log -b {} --pretty=format:'%h %d %s'"
+    branch=$(branches | rg origin | sort | fzf-tmux --preview=$log_pattern)
+    git checkout -t $branch
+}
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR=$HOME/.sdkman
+include  ~/.sdkman/bin/sdkman-init.sh
