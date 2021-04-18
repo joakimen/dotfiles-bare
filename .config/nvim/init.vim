@@ -11,7 +11,7 @@ call plug#begin('~/.vim/plugged')
 
 Plug 'ajh17/VimCompletesMe'
 Plug 'haya14busa/incsearch.vim'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'mhinz/vim-signify'
 Plug 'tommcdo/vim-lion'
@@ -26,6 +26,9 @@ Plug 'udalov/kotlin-vim'
 Plug 'w0rp/ale'
 Plug 'itchyny/lightline.vim'
 Plug 'posva/vim-vue'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'mustache/vim-mustache-handlebars'
+Plug 'Yggdroot/indentLine'
 
 " Color schemes
 Plug 'romainl/apprentice'
@@ -81,7 +84,7 @@ set inccommand=split
 " }}}
 " colors ------------------------------------------------------------------ {{{
 
-" colorscheme seoul256-light
+colo desert
 
 "hi normal ctermbg=none
 "hi nontext ctermbg=none
@@ -189,8 +192,7 @@ tnoremap fd <C-\><C-n>
 
 " terminal: open in buffer/hsplit/vsplit
 nnoremap <silent> <leader>t :te<CR>
-nnoremap <silent> <leader>s :sp term://zsh<CR>
-nnoremap <silent> <leader>v :vsp term://zsh<CR>
+nnoremap <silent> <leader>v :vs $MYVIMRC<CR>
 
 " }}}
 " plugin settings --------------------------------------------------------- {{{
@@ -207,9 +209,21 @@ let g:lightline = {
       \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
       \ },
       \ 'component_function': {
-      \   'gitbranch': 'fugitive#head'
+      \   'gitbranch': 'fugitive#head',
+      \   'filename': 'LightlineFilename',
       \ },
       \ }
+
+function! LightlineFilename()
+  let root = fnamemodify(get(b:, 'git_dir'), ':h')
+  let path = expand('%:p')
+  if path[:len(root)-1] ==# root
+    return path[len(root)+1:]
+  endif
+  return expand('%')
+endfunction
+
+let g:ale_linters = {'java': []}
 
 " }}}
 " plugin keybindings ------------------------------------------------------ {{{
@@ -227,6 +241,7 @@ nnoremap <silent> <C-s> :Lines<CR>
 
 " fugitive.vim
 nnoremap gs :Gstatus<CR>
+nnoremap gb :Gblame<CR>
 
 " NERDComment
 nnoremap <silent> cm :call NERDComment(0, "toggle")<CR>
@@ -390,7 +405,7 @@ augroup end
 " start terminal-mode in insert-mode
 augroup term_startinsert
   au!
-	autocmd TermOpen,BufWinEnter,BufEnter term://* startinsert
+  autocmd TermOpen,BufWinEnter,BufEnter term://* startinsert
 augroup end
 
 " }}}
@@ -482,6 +497,16 @@ augroup ft_applescript
 augroup end
 
 augroup ft_gitconfig
-	au!
-	au FileType gitconfig set noexpandtab
+  au!
+  au FileType gitconfig set noexpandtab
+augroup end
+
+augroup ft_gitcommit
+  au!
+  au FileType gitcommit exec 'au VimEnter * startinsert!'
+augroup end
+
+augroup ft_groovy
+  au!
+  au BufRead Jenkinsfile set ft=groovy
 augroup end
