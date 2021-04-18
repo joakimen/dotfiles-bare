@@ -1,183 +1,189 @@
 # .zshrc
 # Author: Joakim Engeset <joakim.engeset@gmail.com>
 
-# environment variables
-export DISABLE_AUTO_UPDATE=true
-export DOCKER_BUILDKIT=1
-export EDITOR=$([[ -n "$NVIM_LISTEN_ADDRESS" ]] && echo nvr || echo nvim)
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_DEFAULT_COMMAND='fd --type f --hidden'
-export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
-export GO111MODULE=on
-export KITTY_CONFIG_DIRECTORY=~/.config/kitty
-export MANPAGER="nvim -c 'set ft=man' -"
-export PATH=~/go/bin:~/bin:/usr/local/sbin:$PATH
-export RIPGREP_CONFIG_PATH=~/.rgrc
-export ZSH=~/.oh-my-zsh
-export ZSH_AUTOSUGGEST_USE_ASYNC=1
-export ZSH_DISABLE_COMPFIX=true
-export LC_ALL="en_US.utf-8"
+# Uncomment to start profiling
+#zmodload zsh/zprof
 
-# zsh theme
-ZSH_THEME="robbyrussell"
+### Added by Zinit's installer
+if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
+    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
+    command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
+    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
+        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
+        print -P "%F{160}▓▒░ The clone has failed.%f%b"
+fi
 
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-DISABLE_UPDATE_PROMPT="true"
+source "$HOME/.zinit/bin/zinit.zsh"
+autoload -Uz _zinit
+(( ${+_comps} )) && _comps[zinit]=_zinit
+
+# required for annexes
+zinit wait lucid light-mode for \
+    zinit-zsh/z-a-rust \
+    zinit-zsh/z-a-as-monitor \
+    zinit-zsh/z-a-patch-dl \
+    zinit-zsh/z-a-bin-gem-node
+
+zinit wait lucid light-mode for \
+  atinit"zicompinit; zicdreplay" zdharma/fast-syntax-highlighting \
+  atload"_zsh_autosuggest_start" zsh-users/zsh-autosuggestions \
+  blockf atpull'zinit creinstall -q .' zsh-users/zsh-completions \
+  OMZ::lib/completion.zsh \
+  OMZ::lib/history.zsh
+
+# theme
+zinit ice from"gh-r" as"program" atload'!eval $(starship init zsh)'
+zinit light starship/starship
+
+# history stuff
+typeset -g HISTSIZE=50000 SAVEHIST=10000
+
+# disable rm * confirmations
 setopt rmstarsilent
 
-# oh-my-zsh plugins
-plugins=(
-  github
-  fast-syntax-highlighting
-  history-substring-search
-  zsh-autosuggestions
-)
+# skru på emacs-binds (ctrl-p osv)
+bindkey -e
 
-# source files
-include() {
-  [[ -f "$1" ]] && source "$1"
-}
-has_bin() {
-  command -v "$1" &>/dev/null
-}
+# home/end/del support
+bindkey -M emacs "${terminfo[khome]}" beginning-of-line # home-key
+bindkey -M emacs "${terminfo[kend]}"  end-of-line # end-key
+bindkey -M emacs "${terminfo[kdch1]}" delete-char # del-key
 
-include $ZSH/oh-my-zsh.sh
-include ~/.tokens
-include ~/.fzf.zsh
-include ~/.ok.zsh
+# åpne gjeldende kommando i $EDITOR
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey '\C-x\C-e' edit-command-line
+
+## env vars
+export EDITOR=nvim
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_DEFAULT_COMMAND='fd --type f --hidden'
+export FZF_DEFAULT_OPTS='--height 40% --border'
+export MANPAGER="nvim -c 'set ft=man' -"
+export RIPGREP_CONFIG_PATH=~/.rgrc
+export LC_ALL="en_US.utf-8"
+export LPASS_AGENT_TIMEOUT=0
+export SDKMAN_DIR=$HOME/.sdkman
+path=(~/go/bin ~/bin /usr/local/sbin ~/.emacs.d/bin $path)
+
+# scripts
+source ~/.fzf.zsh
+source <(kind completion zsh)
+[[ -f ~/.ok.zsh ]] && source ~/.ok.zsh
+[[ -f ~/.tokens ]] && source ~/.tokens
+
+# lazy load slow kubectl completion
+function kubectl() {
+    if ! type __start_kubectl >/dev/null 2>&1; then
+        source <(command kubectl completion zsh)
+    fi
+    command kubectl "$@"
+}
 
 # quick edit
 alias e=$EDITOR
+alias em=emacs
 alias vc="e ~/.config/nvim/init.vim"
 alias kc="e ~/.config/kitty/kitty.conf"
+alias ac="e ~/.config/alacritty/alacritty.yml"
 alias tc="e ~/.tmux.conf"
 alias bc="e ~/.bashrc"
 alias zc="e ~/.zshrc"
 alias gc="e ~/.gitconfig"
-alias srcz="source ~/.zshrc"
 alias oc="e ~/.ok.zsh"
-alias k=kubectl
-alias kgp="kubectl get pods"
-alias kx=kubectx
+alias srcz="source ~/.zshrc"
 
-# system
+## k8s
+alias k=kubectl
+alias kx=kubectx
+alias kn=kubens
+alias kgp="k get pods"
+alias kgi="k get ingress"
+alias kge="k get events"
+alias kgj="k get jobs"
+alias kgcj="k get cronjobs"
+alias kgd="k get deployments"
+alias kdd="k describe deployment"
+alias kdp="k describe pod"
+alias kdi="k describe ingress"
+alias kdcj="k describe cronjob"
+alias kdq="k describe quota resource"
+alias wkgp="watch kubectl get pods"
+alias wkgj="watch kubectl get jobs"
+alias kgpi="kgp -o custom-columns='NAME:.metadata.name,IMAGE:spec.containers[*].image'"
+alias kgns="kgd -o custom-columns=NAME:.metadata.name,nodeSelector:.spec.template.spec.nodeSelector"
+
+## helm
+alias enc="helm-secrets-enc"
+alias dec="helm-secrets-dec"
+
+## system
 alias pid='ps ax | ag -i '
 alias info='info --vi-keys'
+alias cdm="cd $(mktemp -d)"
+alias ..="cd .."
+alias ...="cd ..."
+alias ....="cd ...."
+alias .....="cd ....."
+alias ......="cd ......"
 
-# unalias some oh-my-zsh stuff
-unalias l
-unalias ls
-
-if has_bin exa; then
+if [[ $commands[exa] ]]; then
   alias l='exa -al'
-  alias ls='exa -a'
-  alias l1='exa -a1'
+  alias ls='exa'
   alias tree='exa -aT'
 else
   alias l='ls -hlGALF'
   alias ls='ls -GAF'
-  alias l1='ls -1AG'
 fi
 
 # tmux
+alias t="tmux new -A -s 0"
 alias tmux="tmux -2 -u"
 alias tks="tmux kill-server"
 
 # git
-alias g=hub
-alias d="git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
-alias prlist="g pr list -f \"%t%n%U%n%n\""
-alias prcopy="prlist | pbcopy"
-alias gfs="git flow feature start"
-alias gff="git flow feature finish"
-alias gpr="git pull-request"
+alias g=git
+alias config="git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
+alias nb="new-branch"
+alias c="git add . && git commit"
+
 
 # maven
 alias mgs="mvn generate-sources"
 alias mci="mvn clean install"
+alias mcid="mci dockerfile:build"
 
-# determine if in a git-repo
-in_git_repo() {
-  git rev-parse @ &> /dev/null
-}
+# docker
+alias d=docker
+alias di="docker images"
+alias din="docker-inspect"
+alias dpsa="docker ps -a"
+alias dr="docker-run"
+alias dcu="docker-compose up"
+alias dco="docker-compose down"
+alias dps="docker-image-push"
+alias dil="docker-image-list"
+alias dcs="docker-container-start"
+alias dct="docker-container-stop"
 
+# gpg
+alias keys="gpg-show-key"
 
+# fzf-file wrappers
+fe()    fzf-file edit $1 # edit file
+ztig()  fzf-file tig $1 # view git history for file
+zrm()   fzf-file rm $1 # delete file
+zcat()  fzf-file cat $1 # echo file contents
+zpath() fzf-file copy-path $1 # copy absolute path of file
+zcopy() fzf-file copy-content $1 # copy file contents
 
-# fzf-wrappers
-fzfk() {
-  file=$(fzf-tmux \
-    --query=$2 \
-    --select-1 \
-    --exit-0 \
-    --preview='[[ $(file --mime {}) =~ binary ]] && echo "<binary>" ||
-                 (bat --style=numbers --color=always {} ||
-                  cat {}) 2> /dev/null | head -500'
-  ) || return
+# fuzzy cd
+zd() { dir=$(fzf-dir) && cd "$dir" }
+kl() fzf-kill-process
+fb() fzf-branch
+erg() rg-edit "$1"
 
-  case "$1" in
-    edit) ${EDITOR:-vim} $file ;;
-    tig) tig $file ;;
-    copy-filepath) echo $(pwd)/$file | pbcopy ;;
-    copy-content) cat $file | pbcopy ;;
-    *) echo "$0: invalid operation $1" ;;
-  esac
-}
-
-fe()    { fzfk edit $1 } # fuzzy edit
-ftig()  { fzfk tig $1 } # fuzzy tig
-fpath() { fzfk copy-filepath $1 } # fuzzy copy absolute path of file
-fcat()  { fzfk copy-content $1 } # fuzzy copy contents
-
-# fuzzy cd (fzf + fd -t d)
-zd() {
-  file=$(fd -t d | fzf-tmux --preview="ls -1 {}/") || return
-  cd "$file"
-}
-
-# fzf + kill -9
-fk() {
-  pid=$(ps -ef | fzf-tmux | awk '{print $2}')
-  [[ -n $pid ]] && kill -9 $pid
-}
-
-# list branches i care about
-branches(){
-  git for-each-ref --format='%(refname:short)' refs/{heads,remotes}/ \
-    | rg -v demo | rg -v HEAD | rg -v origin/master | rg -v origin/develop
-}
-
-# fzf + git checkout branch
-fb() {
-    in_git_repo || return
-    log_pattern="git log -b {} --pretty=format:'%h %d %s'"
-    branch=$(branches | sort | fzf-tmux --preview=$log_pattern)
-    git checkout $branch
-}
-
-# open rg-results in editor
-erg() {
-  $EDITOR $(rg -l $1)
-}
-
-# wait for network connectivity
-n() {
-  while true; do
-    nc -z google.com 80 -G 1 && break
-    echo -n '.'
-    sleep 0.5
-  done
-}
-
-# stream logs from docker engine
-docker_log() {
-  pred='process matches ".*(ocker|vpnkit).*"
- || (process in {"taskgated-helper", "launchservicesd", "kernel"}
- && eventMessage contains[c] "docker")'
-  log stream --style syslog --level=debug --color=always --predicate "$pred"
-}
-
-# Use fd (https://github.com/sharkdp/fd) instead of the default find
-# command for listing path candidates.
+# Use fd instead of the default find for listing path candidates.
 _fzf_compgen_path() {
   fd --hidden --follow --exclude ".git" . "$1"
 }
@@ -187,28 +193,9 @@ _fzf_compgen_dir() {
   fd --type d --hidden --follow --exclude ".git" . "$1"
 }
 
-emacs() {
-  open -a Emacs $1
-}
-
-lpass_copy_password() {
-  # add fzf-filtering of accounts here later
-  lpass show $1 --password --clip
-}
-
-# git: delete pruned branches
-gdpb() {
-  git branch -vv | rg origin | rg ": gone]" | awk '{print $1}' | xargs git branch -d
-}
-
-# fzf+git: checkout and track remote branch
-review() {
-    in_git_repo || return
-    log_pattern="git log -b {} --pretty=format:'%h %d %s'"
-    branch=$(branches | rg origin | sort | fzf-tmux --preview=$log_pattern)
-    git checkout -t $branch
-}
+zsh-time-startup() entr time-startup <<< ~/.zshrc
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR=$HOME/.sdkman
-include  ~/.sdkman/bin/sdkman-init.sh
+source ~/.sdkman/bin/sdkman-init.sh
+
+#zprof # Uncomment to stop active profiling
