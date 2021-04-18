@@ -7,3 +7,4 @@
 (package! sunburn-theme)
 (package! yaml-mode)
 (package! zenburn-theme)
+(package! reformatter)
