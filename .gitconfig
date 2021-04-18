@@ -21,9 +21,11 @@
 	a = add
 	b = branch
 	c = commit
+	ca = commit --amend
 	cm = commit -m
 	co = checkout
 	cv = commit --verbose
+	cp = cherry-pick
 	d = difftool
 	ds = difftool --staged
 	df = diff
@@ -37,14 +39,15 @@
 	ps = push
 	f = fetch
 	fp = fetch --prune
-	s = status
-	ss = status --short
+	s = status --short
 	untracked = ls-files --others --exclude-standard
 	se = secret
 	z = stash
 	zl = stash list
 	zp = stash pop
 	zd = stash drop
+	root = rev-parse --show-toplevel
+	curbranch = rev-parse --abbrev-ref @
 [web]
 	browser = open
 [credential]
@@ -59,3 +62,12 @@
 	default = current
 [pull]
 	default = current
+	rebase = false
+[github]
+	host = github.oslo.kommune.no
+[github "github.oslo.kommune.no/api/v3"]
+	user = joakim-lindeng-engeset
+[fetch]
+	prune = true
+[init]
+	templatedir = ~/.git-templates
