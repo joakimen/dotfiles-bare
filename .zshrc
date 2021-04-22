@@ -69,7 +69,7 @@ path=(~/go/bin ~/bin /usr/local/sbin ~/.emacs.d/bin $path)
 # scripts
 source ~/.fzf.zsh
 source <(kind completion zsh)
-[[ -f ~/.ok.zsh ]] && source ~/.ok.zsh
+[[ -f ~/.okrc ]] && source ~/.okrc
 [[ -f ~/.tokens ]] && source ~/.tokens
 
 # lazy load slow kubectl completion
@@ -90,7 +90,7 @@ alias tc="e ~/.tmux.conf"
 alias bc="e ~/.bashrc"
 alias zc="e ~/.zshrc"
 alias gc="e ~/.gitconfig"
-alias oc="e ~/.ok.zsh"
+alias oc="e ~/.okrc"
 alias srcz="source ~/.zshrc"
 
 ## k8s
@@ -143,10 +143,9 @@ alias tks="tmux kill-server"
 
 # git
 alias g=git
-alias config="git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
+alias dotfile="git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
 alias nb="new-branch"
 alias c="git add . && git commit"
-
 
 # maven
 alias mgs="mvn generate-sources"
@@ -193,6 +192,16 @@ _fzf_compgen_dir() {
   fd --type d --hidden --follow --exclude ".git" . "$1"
 }
 
+dclone() {
+  gh repo clone "$1" $HOME/dev/github.com/"$1"
+  cd $HOME/dev/github.com/"$1"
+}
+
+# requires kitty remote control to be enabled
+kitty-switch-theme() {
+  fd . .config/kitty/kitty-themes/themes \
+    | fzf --preview 'head -n 40 {} && kitty @ set-colors -a -c {}'
+}
 zsh-time-startup() entr time-startup <<< ~/.zshrc
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
