@@ -43,6 +43,8 @@ brew "watchexec"
 brew "weechat"
 brew "zsh"
 
+mas "Amphetamine", id: 937984704
+
 # casks
 cask "alfred"
 cask "authy"
@@ -51,7 +53,6 @@ cask "docker"
 cask "dropbox"
 cask "font-fira-code"
 cask "font-fira-code-nerd-font"
-cask "font-source-code-pro"
 cask "iina"
 cask "kitty"
 cask "lastpass"
