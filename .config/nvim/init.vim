@@ -29,6 +29,52 @@ Plug 'posva/vim-vue'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'mustache/vim-mustache-handlebars'
 Plug 'Yggdroot/indentLine'
+Plug 'hashivim/vim-vagrant'
+Plug 'liquidz/vim-iced'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'cespare/vim-toml'
+Plug 'Glench/Vim-Jinja2-Syntax'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+
+set updatetime=300
+if has_key(g:plugs, 'coc.nvim')
+
+  nnoremap <silent> K :call <SID>show_documentation()<CR>
+  inoremap <silent><expr> <c-space> coc#refresh()
+  function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~# '\s'
+  endfunction
+
+  inoremap <silent><expr> <TAB>
+        \ pumvisible() ? "\<C-n>" :
+        \ <SID>check_back_space() ? "\<TAB>" :
+        \ coc#refresh()
+  inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+  let g:coc_global_extensions = ['coc-git', 'coc-solargraph',
+        \ 'coc-r-lsp', 'coc-python', 'coc-html', 'coc-json', 'coc-css', 'coc-html',
+        \ 'coc-prettier', 'coc-eslint', 'coc-tsserver', 'coc-emoji', 'coc-java']
+  command! -nargs=0 Prettier :CocCommand prettier.formatFile
+
+  "function! s:show_documentation()
+  "if (index(['vim','help'], &filetype) >= 0)
+  "execute 'h '.expand('<cword>')
+  "elseif (coc#rpc#ready())
+  "call CocActionAsync('doHover')
+  "else
+  "execute '!' . &keywordprg . " " . expand('<cword>')
+  "endif
+  "endfunction
+
+  function! s:show_documentation()
+    if (index(['vim', 'help'], &filetype) >= 0)
+      execute 'h' expand('<cword>')
+    else
+      call CocAction('doHover')
+    endif
+  endfunction
+endif
 
 " Color schemes
 Plug 'romainl/apprentice'
@@ -84,7 +130,7 @@ set inccommand=split
 " }}}
 " colors ------------------------------------------------------------------ {{{
 
-colo desert
+colo lena
 
 "hi normal ctermbg=none
 "hi nontext ctermbg=none
@@ -132,6 +178,10 @@ nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
+
+" disable command-history
+nnoremap q: <nop>
+nnoremap Q <nop>
 
 " toggle fold
 nnoremap , za
@@ -197,6 +247,8 @@ nnoremap <silent> <leader>v :vs $MYVIMRC<CR>
 " }}}
 " plugin settings --------------------------------------------------------- {{{
 
+"let previewers.vim_buffer_cat.new
+
 " tagbar
 let g:tagbar_sort=0
 let g:tagbar_autofocus=0
@@ -244,9 +296,8 @@ nnoremap gs :Gstatus<CR>
 nnoremap gb :Gblame<CR>
 
 " NERDComment
-nnoremap <silent> cm :call NERDComment(0, "toggle")<CR>
-vnoremap <silent> cm :call NERDComment(0, "toggle")<CR>
-
+nnoremap <silent> cm :call nerdcommenter#Comment(0, "toggle")<CR>
+vnoremap <silent> cm :call nerdcommenter#Comment(0, "toggle")<CR>
 
 " vim-plug
 cnoreabbrev pi PlugInstall

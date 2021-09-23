@@ -215,3 +215,5 @@ else
 fi
 
 # }}}
+
+[ -s "/Users/joakle/.jabba/jabba.sh" ] && source "/Users/joakle/.jabba/jabba.sh"

@@ -1,11 +1,12 @@
 [user]
 	name = Joakim Engeset
-	email = joakim.engeset@gmail.com
+	email = joakim.engeset@drift.oslo.kommune.no
 [core]
 	autocrlf = input
 	editor = nvim
 [diff]
 	tool = vimdiff
+	colorMoved = zebra
 [difftool]
 	prompt = false
 	trustExitCode = true
@@ -38,7 +39,6 @@
 	pl = pull
 	ps = push
 	f = fetch
-	fp = fetch --prune
 	s = status --short
 	untracked = ls-files --others --exclude-standard
 	se = secret
@@ -67,3 +67,4 @@
 	prune = true
 [init]
 	templatedir = ~/.git-templates
+	defaultBranch = main

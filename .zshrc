@@ -64,7 +64,8 @@ export RIPGREP_CONFIG_PATH=~/.rgrc
 export LC_ALL="en_US.utf-8"
 export LPASS_AGENT_TIMEOUT=0
 export SDKMAN_DIR=$HOME/.sdkman
-path=(~/go/bin ~/bin /usr/local/sbin ~/.emacs.d/bin $path)
+export BAT_THEME=base16
+path=(~/go/bin ~/bin /usr/local/sbin ~/.emacs.d/bin ~/.poetry/bin $path)
 
 # scripts
 source ~/.fzf.zsh
@@ -82,7 +83,7 @@ function kubectl() {
 
 # quick edit
 alias e=$EDITOR
-alias em=emacs
+alias em="open -a Emacs"
 alias vc="e ~/.config/nvim/init.vim"
 alias kc="e ~/.config/kitty/kitty.conf"
 alias ac="e ~/.config/alacritty/alacritty.yml"
@@ -92,6 +93,7 @@ alias zc="e ~/.zshrc"
 alias gc="e ~/.gitconfig"
 alias oc="e ~/.okrc"
 alias srcz="source ~/.zshrc"
+alias er="$EDITOR README.md"
 
 ## k8s
 alias k=kubectl
@@ -101,6 +103,7 @@ alias kgp="k get pods"
 alias kgi="k get ingress"
 alias kge="k get events"
 alias kgj="k get jobs"
+alias kgs="k get secrets"
 alias kgcj="k get cronjobs"
 alias kgd="k get deployments"
 alias kdd="k describe deployment"
@@ -108,10 +111,12 @@ alias kdp="k describe pod"
 alias kdi="k describe ingress"
 alias kdcj="k describe cronjob"
 alias kdq="k describe quota resource"
+alias kgnp="k get netpol"
 alias wkgp="watch kubectl get pods"
 alias wkgj="watch kubectl get jobs"
 alias kgpi="kgp -o custom-columns='NAME:.metadata.name,IMAGE:spec.containers[*].image'"
 alias kgns="kgd -o custom-columns=NAME:.metadata.name,nodeSelector:.spec.template.spec.nodeSelector"
+alias kgn="get nodes -L k8s.oslo.kommune.no/dns-alias"
 
 ## helm
 alias enc="helm-secrets-enc"
@@ -128,7 +133,7 @@ alias .....="cd ....."
 alias ......="cd ......"
 
 if [[ $commands[exa] ]]; then
-  alias l='exa -al'
+  alias l='exa -al -s type'
   alias ls='exa'
   alias tree='exa -aT'
 else
@@ -146,6 +151,7 @@ alias g=git
 alias dotfile="git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
 alias nb="new-branch"
 alias c="git add . && git commit"
+alias cdd="cd $HOME/dev"
 
 # maven
 alias mgs="mvn generate-sources"
@@ -153,7 +159,7 @@ alias mci="mvn clean install"
 alias mcid="mci dockerfile:build"
 
 # docker
-alias d=docker
+#alias d=docker
 alias di="docker images"
 alias din="docker-inspect"
 alias dpsa="docker ps -a"
@@ -180,6 +186,7 @@ zcopy() fzf-file copy-content $1 # copy file contents
 zd() { dir=$(fzf-dir) && cd "$dir" }
 kl() fzf-kill-process
 fb() fzf-branch
+co() fzf-branch-switch
 erg() rg-edit "$1"
 
 # Use fd instead of the default find for listing path candidates.
@@ -199,12 +206,44 @@ dclone() {
 
 # requires kitty remote control to be enabled
 kitty-switch-theme() {
-  fd . .config/kitty/kitty-themes/themes \
+  fd . ~/.config/kitty/kitty-themes/themes \
     | fzf --preview 'head -n 40 {} && kitty @ set-colors -a -c {}'
 }
 zsh-time-startup() entr time-startup <<< ~/.zshrc
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-source ~/.sdkman/bin/sdkman-init.sh
+clone() {
+  repoPath=$HOME/dev/github.com/$1/$2
+  [[ -d "$repoPath" ]] && {
+          echo "$0: $repoPath: Directory exists, exiting"
+          cd "$repoPath"
+          return
+  }
+  gh repo clone https://www.github.com/$1/$2 $repoPath
+  cd $repoPath
+}
 
+cordon() {
+  kubectl cordon -l node-role.kubernetes.io/worker
+}
+
+uncordon() {
+  kubectl uncordon -l node-role.kubernetes.io/worker
+}
+
+entr-workerpods() {
+  fd . | entr -c workerpods
+}
+
+entr-workers() {
+  fd . | entr -c workers
+}
+
+update-dotfiles() {
+  dotfile commit -am 'Update dotfiles'
+  dotfile push
+}
+
+[ -s "/Users/joakle/.jabba/jabba.sh" ] && source "/Users/joakle/.jabba/jabba.sh"
 #zprof # Uncomment to stop active profiling
+alias docker=podman
+alias d=podman
