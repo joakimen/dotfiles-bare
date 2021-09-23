@@ -230,14 +230,6 @@ uncordon() {
   kubectl uncordon -l node-role.kubernetes.io/worker
 }
 
-entr-workerpods() {
-  fd . | entr -c workerpods
-}
-
-entr-workers() {
-  fd . | entr -c workers
-}
-
 update-dotfiles() {
   dotfile commit -am 'Update dotfiles'
   dotfile push
