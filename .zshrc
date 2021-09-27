@@ -59,7 +59,7 @@ export EDITOR=nvim
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_COMMAND='fd --type f --hidden'
 export FZF_DEFAULT_OPTS='--height 40% --border'
-export MANPAGER="nvim -c 'set ft=man' -"
+#export MANPAGER="nvim -c 'set ft=man' -" # broken i nvim 0.5.1
 export RIPGREP_CONFIG_PATH=~/.rgrc
 export LC_ALL="en_US.utf-8"
 export LPASS_AGENT_TIMEOUT=0
