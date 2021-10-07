@@ -135,7 +135,7 @@ alias ......="cd ......"
 if [[ $commands[exa] ]]; then
   alias l='exa -al -s type'
   alias ls='exa'
-  alias tree='exa -aT'
+  alias tree='exa -aT --ignore-glob .git'
 else
   alias l='ls -hlGALF'
   alias ls='ls -GAF'

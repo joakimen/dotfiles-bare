@@ -525,6 +525,7 @@ augroup end
 
 augroup ft_sh
   au!
+  au FileType sh setlocal textwidth=0
   au FileType sh nnoremap <F5> :sp term:///usr/bin/env bash %<CR>
   au FileType sh nnoremap <Leader>r :sp term:///usr/bin/env bash %<CR>
 augroup end
