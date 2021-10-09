@@ -4,90 +4,61 @@
 " =============================================================================
 inoremap fd <Esc>
 let mapleader = ' '
+
+lua require('plugins')
 set shell=/usr/local/bin/zsh
 
-" plugins ----------------------------------------------------------------- {{{
-call plug#begin('~/.vim/plugged')
-
-Plug 'ajh17/VimCompletesMe'
-Plug 'haya14busa/incsearch.vim'
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-Plug 'mhinz/vim-signify'
-Plug 'tommcdo/vim-lion'
-Plug 'majutsushi/tagbar'
-Plug 'scrooloose/nerdcommenter'
-Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-surround'
-Plug 'vim-scripts/VisIncr'
-Plug 'fatih/vim-go'
-Plug 'udalov/kotlin-vim'
-Plug 'w0rp/ale'
-Plug 'itchyny/lightline.vim'
-Plug 'posva/vim-vue'
-Plug 'christoomey/vim-tmux-navigator'
-Plug 'mustache/vim-mustache-handlebars'
-Plug 'Yggdroot/indentLine'
-Plug 'hashivim/vim-vagrant'
-Plug 'liquidz/vim-iced'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'cespare/vim-toml'
-Plug 'Glench/Vim-Jinja2-Syntax'
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
-
 set updatetime=300
-if has_key(g:plugs, 'coc.nvim')
+"if has_key(g:plugs, 'coc.nvim')
 
-  nnoremap <silent> K :call <SID>show_documentation()<CR>
-  inoremap <silent><expr> <c-space> coc#refresh()
-  function! s:check_back_space() abort
-    let col = col('.') - 1
-    return !col || getline('.')[col - 1]  =~# '\s'
-  endfunction
-
-  inoremap <silent><expr> <TAB>
-        \ pumvisible() ? "\<C-n>" :
-        \ <SID>check_back_space() ? "\<TAB>" :
-        \ coc#refresh()
-  inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-  let g:coc_global_extensions = ['coc-git', 'coc-solargraph',
-        \ 'coc-r-lsp', 'coc-python', 'coc-html', 'coc-json', 'coc-css', 'coc-html',
-        \ 'coc-prettier', 'coc-eslint', 'coc-tsserver', 'coc-emoji', 'coc-java']
-  command! -nargs=0 Prettier :CocCommand prettier.formatFile
-
-  "function! s:show_documentation()
-  "if (index(['vim','help'], &filetype) >= 0)
-  "execute 'h '.expand('<cword>')
-  "elseif (coc#rpc#ready())
-  "call CocActionAsync('doHover')
-  "else
-  "execute '!' . &keywordprg . " " . expand('<cword>')
-  "endif
+  "nnoremap <silent> K :call <SID>show_documentation()<CR>
+  "inoremap <silent><expr> <c-space> coc#refresh()
+  "function! s:check_back_space() abort
+    "let col = col('.') - 1
+    "return !col || getline('.')[col - 1]  =~# '\s'
   "endfunction
 
-  function! s:show_documentation()
-    if (index(['vim', 'help'], &filetype) >= 0)
-      execute 'h' expand('<cword>')
-    else
-      call CocAction('doHover')
-    endif
-  endfunction
-endif
+  "inoremap <silent><expr> <TAB>
+        "\ pumvisible() ? "\<C-n>" :
+        "\ <SID>check_back_space() ? "\<TAB>" :
+        "\ coc#refresh()
+  "inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+  "let g:coc_global_extensions = ['coc-git', 'coc-solargraph',
+        "\ 'coc-r-lsp', 'coc-python', 'coc-html', 'coc-json', 'coc-css', 'coc-html',
+        "\ 'coc-prettier', 'coc-eslint', 'coc-tsserver', 'coc-emoji', 'coc-java']
+  "command! -nargs=0 Prettier :CocCommand prettier.formatFile
 
-" Color schemes
-Plug 'romainl/apprentice'
-Plug 'w0ng/vim-hybrid'
-Plug 'freeo/vim-kalisi'
-Plug 'jnurmine/Zenburn'
-Plug 'morhetz/gruvbox'
-Plug 'sickill/vim-monokai'
-Plug 'tomasr/molokai'
-Plug 'junegunn/seoul256.vim'
-Plug 'krystah/lena.vim'
+  ""function! s:show_documentation()
+  ""if (index(['vim','help'], &filetype) >= 0)
+  ""execute 'h '.expand('<cword>')
+  ""elseif (coc#rpc#ready())
+  ""call CocActionAsync('doHover')
+  ""else
+  ""execute '!' . &keywordprg . " " . expand('<cword>')
+  ""endif
+  ""endfunction
 
-call plug#end()
+  "function! s:show_documentation()
+    "if (index(['vim', 'help'], &filetype) >= 0)
+      "execute 'h' expand('<cword>')
+    "else
+      "call CocAction('doHover')
+    "endif
+  "endfunction
+"endif
+
+"" Color schemes
+"Plug 'romainl/apprentice'
+"Plug 'w0ng/vim-hybrid'
+"Plug 'freeo/vim-kalisi'
+"Plug 'jnurmine/Zenburn'
+"Plug 'morhetz/gruvbox'
+"Plug 'sickill/vim-monokai'
+"Plug 'tomasr/molokai'
+"Plug 'junegunn/seoul256.vim'
+"Plug 'joakimen/lena.vim'
+
+"call plug#end()
 
 " }}}
 " options ----------------------------------------------------------------- {{{
@@ -283,13 +254,13 @@ let g:ale_linters = {'java': []}
 " vim-signify
 let g:signify_vcs_list = ['git']
 
-" fzf.vim
-nnoremap <silent> <C-f> :FZF<CR>
-nnoremap <silent> <C-g> :Rg<CR>
-nnoremap <silent> <C-e> :History<CR>
-nnoremap <silent> <C-b> :Buffers<CR>
-nnoremap <silent> <Leader>C :Colors<CR>
-nnoremap <silent> <C-s> :Lines<CR>
+
+" telescope.nvim
+nnoremap <silent> <C-f> :Telescope find_files<CR>
+nnoremap <silent> <C-g> :Telescope live_grep<CR>
+nnoremap <silent> <C-b> :Telescope buffers<CR>
+nnoremap <silent> <C-s> :Telescope grep_string<CR>
+nnoremap <silent> <C-c> :Telescope colorscheme<CR>
 
 " fugitive.vim
 nnoremap gs :Gstatus<CR>
@@ -308,11 +279,6 @@ cnoreabbrev pug PlugUpgrade
 " Tagbar
 nnoremap <silent> <F11> :TagbarToggle<CR>
 inoremap <silent> <F11> <C-o>:TagbarToggle<CR>
-
-" incsearch-vim
-map /  <Plug>(incsearch-forward)
-map ?  <Plug>(incsearch-backward)
-map g/ <Plug>(incsearch-stay)
 
 " ssms grid-content to ascii
 nnoremap <silent> <Leader>f :call CreateAsciiTable()<CR>
@@ -562,3 +528,4 @@ augroup ft_groovy
   au!
   au BufRead Jenkinsfile set ft=groovy
 augroup end
+
