@@ -6,6 +6,7 @@ inoremap fd <Esc>
 let mapleader = ' '
 
 lua require('plugins')
+lua require('lualine').setup()
 set shell=/usr/local/bin/zsh
 
 set updatetime=300
@@ -217,12 +218,6 @@ nnoremap <silent> <leader>v :vs $MYVIMRC<CR>
 
 " }}}
 " plugin settings --------------------------------------------------------- {{{
-
-"let previewers.vim_buffer_cat.new
-
-" tagbar
-let g:tagbar_sort=0
-let g:tagbar_autofocus=0
 
 " lightline
 let g:lightline = {

@@ -2,6 +2,7 @@ vim.cmd([[
   augroup packer_user_config
     autocmd!
     autocmd BufWritePost plugins.lua source <afile> | PackerCompile
+    autocmd BufWritePost plugins.lua source <afile> | PackerClean
     autocmd BufWritePost plugins.lua source <afile> | PackerInstall
   augroup end
 ]])
@@ -11,16 +12,13 @@ return require('packer').startup(function()
   -- Packer can manage itself
   use 'wbthomason/packer.nvim'
 
-  use 'ajh17/VimCompletesMe'
   use 'mhinz/vim-signify'
   use 'tommcdo/vim-lion'
-  use 'majutsushi/tagbar'
   use 'scrooloose/nerdcommenter'
   use 'tpope/vim-fugitive'
   use 'tpope/vim-repeat'
   use 'tpope/vim-surround'
   use 'vim-scripts/VisIncr'
-  use 'itchyny/lightline.vim'
   use 'posva/vim-vue'
   use 'christoomey/vim-tmux-navigator'
   use 'mustache/vim-mustache-handlebars'
@@ -31,6 +29,8 @@ return require('packer').startup(function()
 
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
   use { 'nvim-telescope/telescope.nvim', requires = { {'nvim-lua/plenary.nvim'} } }
+  use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make' }
+  use { 'hoob3rt/lualine.nvim', requires = {'kyazdani42/nvim-web-devicons', opt = true} }
 
   -- colorschemes
   use 'romainl/apprentice'
@@ -44,3 +44,4 @@ return require('packer').startup(function()
   use 'joakimen/lena.vim'
 
 end)
+

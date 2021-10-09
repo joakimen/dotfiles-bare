@@ -65,11 +65,10 @@ export LC_ALL="en_US.utf-8"
 export LPASS_AGENT_TIMEOUT=0
 export SDKMAN_DIR=$HOME/.sdkman
 export BAT_THEME=base16
-path=(~/go/bin ~/bin /usr/local/sbin ~/.emacs.d/bin ~/.poetry/bin $path)
+path=(~/go/bin ~/bin /usr/local/sbin ~/.emacs.d/bin ~/.local/bin/ $path)
 
 # scripts
 source ~/.fzf.zsh
-source <(kind completion zsh)
 [[ -f ~/.okrc ]] && source ~/.okrc
 [[ -f ~/.tokens ]] && source ~/.tokens
 
