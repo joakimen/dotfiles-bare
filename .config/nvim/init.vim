@@ -7,7 +7,7 @@ let mapleader = ' '
 
 lua require('plugins')
 lua require('lualine').setup()
-set shell=/usr/local/bin/zsh
+lua require('gitsigns').setup()
 
 set updatetime=300
 "if has_key(g:plugs, 'coc.nvim')
@@ -48,20 +48,6 @@ set updatetime=300
   "endfunction
 "endif
 
-"" Color schemes
-"Plug 'romainl/apprentice'
-"Plug 'w0ng/vim-hybrid'
-"Plug 'freeo/vim-kalisi'
-"Plug 'jnurmine/Zenburn'
-"Plug 'morhetz/gruvbox'
-"Plug 'sickill/vim-monokai'
-"Plug 'tomasr/molokai'
-"Plug 'junegunn/seoul256.vim'
-"Plug 'joakimen/lena.vim'
-
-"call plug#end()
-
-" }}}
 " options ----------------------------------------------------------------- {{{
 set number
 set lazyredraw
@@ -83,7 +69,6 @@ set smartcase
 set gdefault
 set nobackup
 set noswapfile
-set textwidth=80
 set wrap
 set virtualedit=block
 set listchars=tab:▸\ ,

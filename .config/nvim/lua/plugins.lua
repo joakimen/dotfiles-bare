@@ -12,7 +12,7 @@ return require('packer').startup(function()
   -- Packer can manage itself
   use 'wbthomason/packer.nvim'
 
-  use 'mhinz/vim-signify'
+  --use 'mhinz/vim-signify'
   use 'tommcdo/vim-lion'
   use 'scrooloose/nerdcommenter'
   use 'tpope/vim-fugitive'
@@ -26,7 +26,13 @@ return require('packer').startup(function()
   use 'hashivim/vim-vagrant'
   use 'cespare/vim-toml'
   use 'Glench/Vim-Jinja2-Syntax'
+  use 'lewis6991/gitsigns.nvim'
+  use {
+    'neovim/nvim-lspconfig',
+    'folke/trouble.nvim',
+    'kosayoda/nvim-lightbulb',
 
+  }
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
   use { 'nvim-telescope/telescope.nvim', requires = { {'nvim-lua/plenary.nvim'} } }
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make' }
