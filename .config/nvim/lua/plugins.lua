@@ -15,14 +15,13 @@ return require('packer').startup(function()
   --- general purpose
   use 'machakann/vim-sandwich'
   use { 'andymass/vim-matchup', event = 'User ActuallyEditing' }
-  use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
   use { 'nvim-telescope/telescope.nvim', requires = { {'nvim-lua/plenary.nvim'} } }
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make' }
-  use { 'hoob3rt/lualine.nvim', requires = {'kyazdani42/nvim-web-devicons', opt = true} }
+  use { 'lukas-reineke/indent-blankline.nvim', ft = {'yaml', 'json', 'toml'} }
+  use 'hrsh7th/nvim-cmp'
+
   use 'tommcdo/vim-lion'
   use 'scrooloose/nerdcommenter'
-  use 'Yggdroot/indentLine'
-  use 'christoomey/vim-tmux-navigator'
 
   --- lang specific. trash when lsp confed?
   use 'vim-scripts/VisIncr'
@@ -31,13 +30,16 @@ return require('packer').startup(function()
   use 'cespare/vim-toml'
   use 'Glench/Vim-Jinja2-Syntax'
 
-  -- git stuf
-  use { 'TimUntersberger/neogit', requires = 'nvim-lua/plenary.nvim' }
-  use 'lewis6991/gitsigns.nvim'
+  -- git stuff
+  use { 'TimUntersberger/neogit', config = [[require('neogit').setup()]], requires = 'nvim-lua/plenary.nvim' }
+  use { 'lewis6991/gitsigns.nvim', config = [[require('gitsigns').setup()]] }
 
   -- lang & linting
+  use { 'nvim-treesitter/nvim-treesitter', config = [[require ('config.treesitter')]], run = ':TSUpdate' }
+
+  use { 'neovim/nvim-lspconfig', config = [[require('config.lsp')]] }
   use {
-    'neovim/nvim-lspconfig',
+    'nvim-treesitter/playground',
     'folke/trouble.nvim',
     'kosayoda/nvim-lightbulb',
   }
@@ -55,5 +57,6 @@ return require('packer').startup(function()
     'joakimen/lena.vim',
   }
 
+  use 'christoomey/vim-tmux-navigator'
 end)
 
