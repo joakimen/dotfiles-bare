@@ -8,53 +8,13 @@ let mapleader = ' '
 lua require('plugins')
 lua require('lualine').setup()
 lua require('gitsigns').setup()
+lua require('neogit').setup()
 
 set updatetime=300
-"if has_key(g:plugs, 'coc.nvim')
-
-  "nnoremap <silent> K :call <SID>show_documentation()<CR>
-  "inoremap <silent><expr> <c-space> coc#refresh()
-  "function! s:check_back_space() abort
-    "let col = col('.') - 1
-    "return !col || getline('.')[col - 1]  =~# '\s'
-  "endfunction
-
-  "inoremap <silent><expr> <TAB>
-        "\ pumvisible() ? "\<C-n>" :
-        "\ <SID>check_back_space() ? "\<TAB>" :
-        "\ coc#refresh()
-  "inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-  "let g:coc_global_extensions = ['coc-git', 'coc-solargraph',
-        "\ 'coc-r-lsp', 'coc-python', 'coc-html', 'coc-json', 'coc-css', 'coc-html',
-        "\ 'coc-prettier', 'coc-eslint', 'coc-tsserver', 'coc-emoji', 'coc-java']
-  "command! -nargs=0 Prettier :CocCommand prettier.formatFile
-
-  ""function! s:show_documentation()
-  ""if (index(['vim','help'], &filetype) >= 0)
-  ""execute 'h '.expand('<cword>')
-  ""elseif (coc#rpc#ready())
-  ""call CocActionAsync('doHover')
-  ""else
-  ""execute '!' . &keywordprg . " " . expand('<cword>')
-  ""endif
-  ""endfunction
-
-  "function! s:show_documentation()
-    "if (index(['vim', 'help'], &filetype) >= 0)
-      "execute 'h' expand('<cword>')
-    "else
-      "call CocAction('doHover')
-    "endif
-  "endfunction
-"endif
 
 " options ----------------------------------------------------------------- {{{
 set number
 set lazyredraw
-set hidden
-set wildmode=longest:list,full
-set shortmess=aIT
-set nojoinspaces
 set clipboard+=unnamedplus
 set nrformats=
 set splitright
@@ -67,9 +27,7 @@ set shiftround
 set ignorecase
 set smartcase
 set gdefault
-set nobackup
 set noswapfile
-set wrap
 set virtualedit=block
 set listchars=tab:▸\ ,
 set list
@@ -98,13 +56,6 @@ match ExtraWhitespace /\s\+$/
 " }}}
 " abbreviations ----------------------------------------------------------- {{{
 
-iabbrev @@ joakim.engeset@gmail.com
-iabbrev aauth Author: Joakim Engeset <joakim.engeset@gmail.com>
-iabbrev todo TODO
-
-" insert date (example: 'Mon 04 Jun 2018')
-iabbrev idate <C-R>=<sid>getdate()<CR>
-
 " display help in vertical split
 cabbrev h vert h
 
@@ -113,16 +64,6 @@ cabbrev h vert h
 
 " json: format buffer with jq
 nnoremap <leader>j :setf json\|%!jq<cr>
-
-" map search to same key used on US layouts
-nnoremap - /
-
-" markdown bindings, stolen from junegunn choi
-nnoremap <leader>1 m`yypVr=``
-nnoremap <leader>2 m`yypVr-``
-nnoremap <leader>3 m`^i### <esc>``4l
-nnoremap <leader>4 m`^i#### <esc>``5l
-nnoremap <leader>5 m`^i##### <esc>``6l
 
 " move as expected across wrapped lines
 nnoremap j gj
@@ -202,38 +143,7 @@ nnoremap <silent> <leader>t :te<CR>
 nnoremap <silent> <leader>v :vs $MYVIMRC<CR>
 
 " }}}
-" plugin settings --------------------------------------------------------- {{{
-
-" lightline
-let g:lightline = {
-      \ 'colorscheme': 'wombat',
-      \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
-      \ },
-      \ 'component_function': {
-      \   'gitbranch': 'fugitive#head',
-      \   'filename': 'LightlineFilename',
-      \ },
-      \ }
-
-function! LightlineFilename()
-  let root = fnamemodify(get(b:, 'git_dir'), ':h')
-  let path = expand('%:p')
-  if path[:len(root)-1] ==# root
-    return path[len(root)+1:]
-  endif
-  return expand('%')
-endfunction
-
-let g:ale_linters = {'java': []}
-
-" }}}
 " plugin keybindings ------------------------------------------------------ {{{
-
-" vim-signify
-let g:signify_vcs_list = ['git']
-
 
 " telescope.nvim
 nnoremap <silent> <C-f> :Telescope find_files<CR>
@@ -243,129 +153,26 @@ nnoremap <silent> <C-s> :Telescope grep_string<CR>
 nnoremap <silent> <C-c> :Telescope colorscheme<CR>
 
 " fugitive.vim
-nnoremap gs :Gstatus<CR>
-nnoremap gb :Gblame<CR>
+nnoremap gs :Git<CR>
+nnoremap gb :Git blame<CR>
 
 " NERDComment
 nnoremap <silent> cm :call nerdcommenter#Comment(0, "toggle")<CR>
 vnoremap <silent> cm :call nerdcommenter#Comment(0, "toggle")<CR>
 
-" vim-plug
-cnoreabbrev pi PlugInstall
-cnoreabbrev pc PlugClean
-cnoreabbrev pu PlugUpdate
-cnoreabbrev pug PlugUpgrade
-
-" Tagbar
-nnoremap <silent> <F11> :TagbarToggle<CR>
-inoremap <silent> <F11> <C-o>:TagbarToggle<CR>
-
-" ssms grid-content to ascii
-nnoremap <silent> <Leader>f :call CreateAsciiTable()<CR>
-
 " }}}
 " functions --------------------------------------------------------------- {{{
 
-function! s:getdate()
-  return strftime("%a %d %b %Y")
-endfunction
-
 function! CleanupWhitespace()
-
   " remove trailing whitespace
   %s/\v\s+$//e
-
-  " format tabs according to settings
   retab
-
-endfunction
-
-function! s:google(pat)
-  let q = '"'.substitute(a:pat, '["\n]', ' ', 'g').'"'
-  let q = substitute(q, '[[:punct:] ]',
-        \ '\=printf("%%%02X", char2nr(submatch(0)))', 'g')
-  call system(printf('open "https://www.google.com/search?q=%s"', q))
-endfunction
-
-" format ssms grid-content as ascii-table
-function! CreateAsciiTable()
-
-  " delete empty lines
-  silent g/^$/de
-
-  " remove carriage returns
-  silent %s/\r/\r/e
-
-  " replace tabs with pipes
-  silent %s/\t/|/e
-
-  " wrap line in pipes
-  silent %s/.*/|\0|/e
-
-  " align cells to pipes using 'lion'-plugin
-  silent normal glip|
-
-  " add a dash-separator below column headers
-  silent normal yypVr-
-
-  " yank entire buffer
-  silent %y
-endfunction
-
-
-" mark all lines in the buffer (except lines 1-2) as incomplete items
-" if they don't match any note-taking symbols.
-function! TODOMarkIncompleteItems()
-
-  " mark initial position
-  normal mp
-
-  " apply function to all lines except lines 1-2k
-  3,$ call <SID>todo_mark_incomplete_item()
-
-  " return to initial position
-  normal `p
-
-  " remote position marker when done
-  delmarks mp
-endfunction
-
-
-" mark line as an incomplete item, '_ ', if it doesn't match any of the
-" note-taking symbols already. our note-taking symbols are as follows:
-"
-"   # header
-"   x completed item
-"   _ incomplete item
-function! s:todo_mark_incomplete_item()
-
-  let line = getline('.')
-
-  " if line is empty, skip it
-  if line =~ '^\s*$' | return | endif
-
-  " extract the first character of the line
-  let char = strpart(line, 0, 1)
-
-  " define recognized note-taking symbols
-  let notechars = ['#', '_', 'x']
-
-  " remove leading whitespace
-  let line = substitute(line, '^\s\+', '', 'g')
-
-  " inspect the first character of the line. if the character is not a
-  " recognized symbol, mark the line as an incomplete item.
-  if index(notechars, char) == -1
-    call setline('.', '_ '.line)
-  endif
-
 endfunction
 
 " }}}
 " autocommands ------------------------------------------------------------ {{{
 
 " general {{{
-
 
 augroup general
   au!
@@ -391,7 +198,7 @@ augroup end
 augroup quickfix
   autocmd!
   autocmd FileType qf setlocal wrap
-augroup END
+augroup end
 
 " auto-source .vimrc
 augroup vimrc
@@ -417,24 +224,6 @@ augroup ft_go
   au FileType go nnoremap <silent> <Leader>0 :TagbarToggle<CR>
   au FileType go inoreabbrev iferr if err != nil {<CR>log.Fatal(err)<CR>}
   au FileType go let g:tagbar_width=60
-augroup end
-
-" support for some note-taking stuff..
-augroup ft_notes
-  au!
-
-  " mark untagged lines as incomplete on write
-  au BufWritePost TODO.md call TODOMarkIncompleteItems()
-
-  " open all folds when opening file
-  au BufRead TODO.md setlocal foldlevel=10
-
-  " insert new header with current date
-  au FileType markdown nnoremap _ o<CR># <C-r>=<sid>getdate()<CR><Esc>0
-
-  " mark line as done with timestamp
-  au FileType markdown nnoremap - mp0rx:r !date "+[\%H:\%M]"<CR>kJ`p
-
 augroup end
 
 augroup ft_ruby
@@ -490,7 +279,6 @@ augroup end
 
 augroup ft_applescript
   au!
-  au FileType applescript nnoremap <F5> :sp term:///usr/bin/env osascript %<CR>
   au FileType applescript nnoremap <Leader>r :sp term:///usr/bin/env osascript %<CR>
 augroup end
 
