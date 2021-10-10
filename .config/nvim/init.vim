@@ -5,10 +5,8 @@
 inoremap fd <Esc>
 let mapleader = ' '
 
+lua require('bootstrap/packer')
 lua require('plugins')
-lua require('lualine').setup()
-lua require('gitsigns').setup()
-lua require('neogit').setup()
 
 set updatetime=300
 
