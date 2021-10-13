@@ -36,7 +36,7 @@ return require('packer').startup(function()
 
   -- lang & linting
   use { 'nvim-treesitter/nvim-treesitter', config = [[require ('config.treesitter')]], run = ':TSUpdate' }
-
+  use 'kyazdani42/nvim-web-devicons'
   use { 'neovim/nvim-lspconfig', config = [[require('config.lsp')]] }
   use {
     'nvim-treesitter/playground',
