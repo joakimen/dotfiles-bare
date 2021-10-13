@@ -131,10 +131,10 @@ alias ....="cd ...."
 alias .....="cd ....."
 alias ......="cd ......"
 
-if [[ $commands[exa] ]]; then
-  alias l='exa -al -s type'
-  alias ls='exa'
-  alias tree='exa -aT --ignore-glob .git'
+if [[ $commands[lsd] ]]; then
+  alias l="lsd"
+  alias ll='lsd -l'
+  alias tree='lsd --tree'
 else
   alias l='ls -hlGALF'
   alias ls='ls -GAF'
@@ -238,3 +238,7 @@ update-dotfiles() {
 #zprof # Uncomment to stop active profiling
 alias docker=podman
 alias d=podman
+
+# Generated for envman. Do not edit.
+[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+
