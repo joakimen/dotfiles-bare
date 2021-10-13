@@ -7,5 +7,8 @@ blocks:
 
 display: almost-all
 
+sorting:
+  dir-grouping: first
+
 # ignore-globs:
 #   - .git
