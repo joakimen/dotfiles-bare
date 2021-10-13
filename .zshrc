@@ -63,7 +63,6 @@ export FZF_DEFAULT_OPTS='--height 40% --border'
 export RIPGREP_CONFIG_PATH=~/.rgrc
 export LC_ALL="en_US.utf-8"
 export LPASS_AGENT_TIMEOUT=0
-export SDKMAN_DIR=$HOME/.sdkman
 export BAT_THEME=base16
 path=(~/go/bin ~/bin /usr/local/sbin ~/.emacs.d/bin ~/.local/bin/ $path)
 
