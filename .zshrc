@@ -131,8 +131,8 @@ alias .....="cd ....."
 alias ......="cd ......"
 
 if [[ $commands[lsd] ]]; then
-  alias l="lsd"
-  alias ll='lsd -l'
+  alias l='lsd -l'
+  alias ls="lsd"
   alias tree='lsd --tree'
 else
   alias l='ls -hlGALF'

@@ -5,8 +5,8 @@
 inoremap fd <Esc>
 let mapleader = ' '
 
-lua require('bootstrap/packer')
 lua require('plugins')
+lua require('telescope').load_extension('fzf')
 
 set updatetime=300
 
@@ -43,7 +43,7 @@ set inccommand=split
 " }}}
 " colors ------------------------------------------------------------------ {{{
 
-colo lena
+colo desert
 
 "hi normal ctermbg=none
 "hi nontext ctermbg=none
