@@ -38,6 +38,7 @@ return require('packer').startup(function()
 
   -- git stuff
   use { 'lewis6991/gitsigns.nvim', config = [[require('gitsigns').setup()]] }
+  use 'tpope/vim-fugitive'
 
   -- lang & linting
   use { 'nvim-treesitter/nvim-treesitter', config = [[require ('config.treesitter')]], run = ':TSUpdate' }
