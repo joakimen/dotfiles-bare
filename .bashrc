@@ -35,6 +35,7 @@ export HISTTIMEFORMAT="%Y/%m/%d %H:%M:%S:   "
 export COPYFILE_DISABLE=true
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
+export XDG_CONFIG_HOME="$HOME/.config"
 
 [ -z "$TMPDIR" ] && TMPDIR=/tmp
 
@@ -55,48 +56,10 @@ command -v blsd > /dev/null && export FZF_ALT_C_COMMAND='blsd'
 command -v tree > /dev/null && export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 
 # }}}
-# aliases ------------------------------------------------------------------{{{
 
+# aliases
+source $XDG_CONFIG_HOME/shell/aliasrc
 
-# quick edit
-alias bc=$EDITOR' ~/.bashrc'
-alias tc=$EDITOR' ~/.tmux.conf'
-alias ic=$EDITOR' ~/.config/i3/config'
-alias vb=$EDITOR' ~/bin/build'
-
-# git
-alias gs='git status --short'
-alias gitv='git log --graph --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
-
-# system
-alias vi=$EDITOR
-alias vim=$EDITOR
-alias e=$EDITOR
-alias pip=pip3
-alias python=python3
-alias which='type -p'
-alias pid='ps ax | ag'
-alias l='ls -HalF'
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias .....='cd ../../../..'
-alias ......='cd ../../../../..'
-
-# tmux
-alias mux='tmuxinator'
-alias tks="tmux kill-server"
-alias tmux="tmux -2"
-alias tmuxls="ls $TMPDIR/tmux*/"
-
-# homebrew 
-alias up='brew update'
-alias ug='brew upgrade'
-alias in='brew install'
-alias cin='brew cask install'
-alias se='brew search'
-
-# }}}
 # functions ----------------------------------------------------------------{{{
 
 # tarball all files in $PWD
@@ -215,9 +178,3 @@ else
 fi
 
 # }}}
-
-[ -s "/Users/joakle/.jabba/jabba.sh" ] && source "/Users/joakle/.jabba/jabba.sh"
-
-# Generated for envman. Do not edit.
-[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
-

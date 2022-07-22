@@ -17,6 +17,7 @@ source "$HOME/.zinit/bin/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 
+
 # required for annexes
 zinit wait lucid light-mode for \
     zinit-zsh/z-a-rust \
@@ -31,15 +32,18 @@ zinit wait lucid light-mode for \
   OMZ::lib/completion.zsh \
   OMZ::lib/history.zsh
 
-# theme
+## theme
 zinit ice from"gh-r" as"program" atload'!eval $(starship init zsh)'
 zinit light starship/starship
 
 # history stuff
-typeset -g HISTSIZE=50000 SAVEHIST=10000
+typeset -g HISTSIZE=100000 SAVEHIST=100000
 
 # disable rm * confirmations
 setopt rmstarsilent
+
+# enable comments in inline shell commands
+setopt interactivecomments
 
 # skru på emacs-binds (ctrl-p osv)
 bindkey -e
@@ -59,17 +63,21 @@ export EDITOR=nvim
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_COMMAND='fd --type f --hidden'
 export FZF_DEFAULT_OPTS='--height 40% --border'
-#export MANPAGER="nvim -c 'set ft=man' -" # broken i nvim 0.5.1
+export MANPAGER='nvim +Man!'
 export RIPGREP_CONFIG_PATH=~/.config/rg/config
 export LC_ALL="en_US.utf-8"
 export LPASS_AGENT_TIMEOUT=0
 export BAT_THEME=base16
+export XDG_CONFIG_HOME="$HOME/.config"
+export DOCKER_HOST='unix:///Users/joakle/.local/share/containers/podman/machine/podman-machine-default/podman.sock'
+export BUILDAH_FORMAT=docker
 path=(~/go/bin ~/bin /usr/local/sbin ~/.emacs.d/bin ~/.local/bin/ $path)
 
 # scripts
 source ~/.fzf.zsh
-[[ -f ~/.okrc ]] && source ~/.okrc
-[[ -f ~/.tokens ]] && source ~/.tokens
+source ~/.tokens
+source $XDG_CONFIG_HOME/shell/aliasrc
+source ~/.okrc
 
 # lazy load slow kubectl completion
 function kubectl() {
@@ -78,99 +86,6 @@ function kubectl() {
     fi
     command kubectl "$@"
 }
-
-# quick edit
-alias e=$EDITOR
-alias em="open -a Emacs"
-alias vc="e ~/.config/nvim/init.vim"
-alias kc="e ~/.config/kitty/kitty.conf"
-alias ac="e ~/.config/alacritty/alacritty.yml"
-alias tc="e ~/.tmux.conf"
-alias bc="e ~/.bashrc"
-alias zc="e ~/.zshrc"
-alias gc="e ~/.gitconfig"
-alias oc="e ~/.okrc"
-alias srcz="source ~/.zshrc"
-alias er="$EDITOR README.md"
-
-## k8s
-alias k=kubectl
-alias kx=kubectx
-alias kn=kubens
-alias kgp="k get pods"
-alias kgi="k get ingress"
-alias kge="k get events"
-alias kgj="k get jobs"
-alias kgs="k get secrets"
-alias kgcj="k get cronjobs"
-alias kgd="k get deployments"
-alias kdd="k describe deployment"
-alias kdp="k describe pod"
-alias kdi="k describe ingress"
-alias kdcj="k describe cronjob"
-alias kdq="k describe quota resource"
-alias kgnp="k get netpol"
-alias wkgp="watch kubectl get pods"
-alias wkgj="watch kubectl get jobs"
-alias kgpi="kgp -o custom-columns='NAME:.metadata.name,IMAGE:spec.containers[*].image'"
-alias kgns="kgd -o custom-columns=NAME:.metadata.name,nodeSelector:.spec.template.spec.nodeSelector"
-alias kgn="get nodes -L k8s.oslo.kommune.no/dns-alias"
-
-## helm
-alias enc="helm-secrets-enc"
-alias dec="helm-secrets-dec"
-
-## system
-alias pid='ps ax | ag -i '
-alias info='info --vi-keys'
-alias cdm="cd $(mktemp -d)"
-alias ..="cd .."
-alias ...="cd ..."
-alias ....="cd ...."
-alias .....="cd ....."
-alias ......="cd ......"
-
-if [[ $commands[lsd] ]]; then
-  alias l='lsd -l'
-  alias ls="lsd"
-  alias tree='lsd --tree'
-else
-  alias l='ls -hlGALF'
-  alias ls='ls -GAF'
-fi
-
-# tmux
-alias t="tmux new -A -s 0"
-alias tmux="tmux -2 -u"
-alias tks="tmux kill-server"
-
-# git
-alias g=git
-alias dotfile="git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
-alias nb="new-branch"
-alias c="git add . && git commit"
-alias cdd="cd $HOME/dev"
-
-# maven
-alias mgs="mvn generate-sources"
-alias mci="mvn clean install"
-alias mcid="mci dockerfile:build"
-
-# docker
-#alias d=docker
-alias di="docker images"
-alias din="docker-inspect"
-alias dpsa="docker ps -a"
-alias dr="docker-run"
-alias dcu="docker-compose up"
-alias dco="docker-compose down"
-alias dps="docker-image-push"
-alias dil="docker-image-list"
-alias dcs="docker-container-start"
-alias dct="docker-container-stop"
-
-# gpg
-alias keys="gpg-show-key"
 
 # fzf-file wrappers
 fe()    fzf-file edit $1 # edit file
@@ -197,10 +112,19 @@ _fzf_compgen_dir() {
   fd --type d --hidden --follow --exclude ".git" . "$1"
 }
 
-dclone() {
-  gh repo clone "$1" $HOME/dev/github.com/"$1"
-  cd $HOME/dev/github.com/"$1"
+fzf-switch-branch() {
+  zle -I
+
+  git rev-parse --git-dir &> /dev/null || return
+
+  local_branches=$(git for-each-ref --format='%(refname:short)' refs/heads)
+  log_pattern="git log -b {} --pretty=format:'%h %d %s'"
+
+  chosen_branch=$(fzf --preview="$log_pattern" -0 <<< "$local_branches")
+  [[ $chosen_branch ]] && git switch "$chosen_branch"
 }
+zle -N fzf-switch-branch
+bindkey '^B' fzf-switch-branch
 
 # requires kitty remote control to be enabled
 kitty-switch-theme() {
@@ -220,24 +144,34 @@ clone() {
   cd $repoPath
 }
 
-cordon() {
-  kubectl cordon -l node-role.kubernetes.io/worker
-}
-
-uncordon() {
-  kubectl uncordon -l node-role.kubernetes.io/worker
-}
-
 update-dotfiles() {
   dotfile commit -am 'Update dotfiles'
   dotfile push
 }
 
-[ -s "/Users/joakle/.jabba/jabba.sh" ] && source "/Users/joakle/.jabba/jabba.sh"
+project-cd() {
+  dir=$(project-list | fzf)
+  [[ $dir ]] && cd "$OK_DIR/$dir"
+  zle reset-prompt
+}
+zle -N project-cd
+bindkey '^O' project-cd
+
+fzf-cd() {
+  dir=$(fd -t d | fzf)
+  [[ $dir ]] && cd "$dir"
+  zle reset-prompt
+}
+zle -N fzf-cd
+bindkey '^G' fzf-cd
+
+pipi() {
+  pip install "$1" && pip freeze | rg "$1" >> requirements.txt
+}
+
+export o="-o yaml | nvim -c 'setf yaml'"
+
+# asdf version manager
+. $HOME/.asdf/asdf.sh
+
 #zprof # Uncomment to stop active profiling
-alias docker=podman
-alias d=podman
-
-# Generated for envman. Do not edit.
-[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
-
