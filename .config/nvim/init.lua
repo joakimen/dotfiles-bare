@@ -1,8 +1,10 @@
 require('plugins')
+require('config.telescope')
 require('telescope').load_extension('fzf')
 
 -- opts
 local o = vim.opt
+local g = vim.g
 local viml = vim.api.nvim_command
 
 o.updatetime = 300
@@ -64,6 +66,9 @@ xmap('k', 'gk')
 nmap('<leader>d', ':bd<CR>')
 nmap('<leader>D', ':bd!<CR>')
 
+-- open vimrc
+nmap('<leader>v', ':e $MYVIMRC<CR>')
+
 -- fd = esc
 imap('fd', '<Esc>')
 
@@ -71,7 +76,7 @@ imap('fd', '<Esc>')
 nmap('<C-f>', ':Telescope find_files<CR>')
 nmap('<C-g>', ':Telescope live_grep<CR>')
 nmap('<C-b>', ':Telescope buffers<CR>')
-nmap('<C-s>', ':Telescope grep_string<CR>')
+nmap('<C-s>', ':Telescope current_buffer_fuzzy_find<CR>')
 nmap('<C-c>', ':Telescope colorscheme<CR>')
 
 -- comments
@@ -80,7 +85,7 @@ vmap('cm', ':call nerdcommenter#Comment(0, "toggle")<CR>')
 
 -- misc
 nmap('<leader>j', ':setf json|%!jq<cr>')
-nmap('<leader>i', ':lua cleanup_whitespace()<CR>')
+nmap('<leader>w', ':lua cleanup_whitespace()<CR>')
 nmap('<leader>l', ':nohlsearch<cr>')
 nmap('n', 'nzz')
 nmap('N', 'Nzz')
@@ -97,7 +102,7 @@ nmap('ci}', '%ci}')
 nmap('gs', ':Git<cr>')
 nmap('gb', ':Git blame<cr>')
 
-viml [[colorscheme lena]]
+viml [[colorscheme dracula]]
 
 -- show trailing whitespace
 viml([[

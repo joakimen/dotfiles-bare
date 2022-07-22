@@ -24,7 +24,13 @@ return require('packer').startup(function()
   use { 'nvim-telescope/telescope.nvim', requires = { {'nvim-lua/plenary.nvim'} } }
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make' }
   use { 'lukas-reineke/indent-blankline.nvim', ft = {'yaml', 'json', 'toml'} }
-  use 'hrsh7th/nvim-cmp'
+  use {
+
+    'nvim-lualine/lualine.nvim',
+    requires = {'kyazdani42/nvim-web-devicons', opt = true},
+    config = [[require('config.lualine')]]
+    --config = [[require('lualine').setup()]]
+  }
 
   use 'tommcdo/vim-lion'
   use 'scrooloose/nerdcommenter'
@@ -35,6 +41,8 @@ return require('packer').startup(function()
   use 'hashivim/vim-vagrant'
   use 'cespare/vim-toml'
   use 'Glench/Vim-Jinja2-Syntax'
+  use 'NoahTheDuke/vim-just'
+  use 'SidOfc/mkdx'
 
   -- git stuff
   use { 'lewis6991/gitsigns.nvim', config = [[require('gitsigns').setup()]] }
@@ -61,6 +69,8 @@ return require('packer').startup(function()
     'tomasr/molokai',
     'junegunn/seoul256.vim',
     'joakimen/lena.vim',
+    'joshdick/onedark.vim',
+    'Mofiqul/dracula.nvim'
   }
 
   use 'christoomey/vim-tmux-navigator'
