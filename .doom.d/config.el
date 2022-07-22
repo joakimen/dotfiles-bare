@@ -19,7 +19,7 @@
 (global-auto-revert-mode t)
 (add-hook 'dired-mode-hook 'auto-revert-mode)
 
-(setq doom-font (font-spec :family "Fira Code" :size 14)
+(setq doom-font (font-spec :family "Fira Code" :size 16)
       doom-theme 'doom-material)
 
 (custom-set-variables
