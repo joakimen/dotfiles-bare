@@ -1,6 +1,6 @@
 [user]
-	name = Joakim Engeset
-	email = joakim.engeset@drift.oslo.kommune.no
+	name = Joakim L. Engeset
+	email = joakim.engeset@gmail.com
 [core]
 	autocrlf = input
 	editor = nvim
