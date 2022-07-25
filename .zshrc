@@ -96,10 +96,10 @@ zpath() fzf-file copy-path $1 # copy absolute path of file
 zcopy() fzf-file copy-content $1 # copy file contents
 
 # fuzzy cd
-zd() { dir=$(fzf-dir) && cd "$dir" }
+zd() { dir=$(select-dir) && cd "$dir" }
 kl() fzf-kill-process
-fb() fzf-branch
-co() fzf-branch-switch
+fb() switch-branch
+co() switch-remote-branch
 erg() rg-edit "$1"
 
 # Use fd instead of the default find for listing path candidates.
@@ -158,7 +158,7 @@ zle -N project-cd
 bindkey '^O' project-cd
 
 fzf-cd() {
-  dir=$(fd -t d | fzf)
+  dir=$(fd -t d | fzf --preview="ls -1 {}/")
   [[ $dir ]] && cd "$dir"
   zle reset-prompt
 }
